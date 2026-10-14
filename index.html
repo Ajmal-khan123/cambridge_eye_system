@@ -1,1074 +1,467 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cambridge Eye System - Kiosk Intake & Frame Selector</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              50: '#ecfeff',
-              100: '#cffaff',
-              200: '#a5f3fc',
-              300: '#67e8f9',
-              400: '#22d3ee',
-              500: '#06b6d4',
-              600: '#0891b2',
-              700: '#0e7490',
-              800: '#155e75',
-              900: '#164e63',
-              950: '#083344',
-            }
-          }
-        }
-      }
-    }
-  </script>
-
-  <style>
-    /* Custom Scrollbar for sleek kiosk look */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0f172a;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #1e293b;
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #0891b2;
-    }
-    
-    /* Touch target helper */
-    .touch-target {
-      min-height: 48px;
-    }
-
-    /* Print styles for Optical Ticket */
-    @media print {
-      body * {
-        visibility: hidden;
-      }
-      #printableTicket, #printableTicket * {
-        visibility: visible;
-      }
-      #printableTicket {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        color: black !important;
-        background: white !important;
-        padding: 20px;
-      }
-      .no-print {
-        display: none !important;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OphthaCare - Eye Health & Doctor Consultation System</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+    </style>
 </head>
-<body class="font-sans antialiased h-full flex flex-col bg-slate-950 text-slate-100 selection:bg-brand-500 selection:text-slate-950">
+<body class="bg-slate-50 font-sans text-slate-800 min-h-screen flex flex-col">
 
-  <!-- TOP HEADER / BRANDING BAR -->
-  <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur-md sticky top-0 z-40 px-4 lg:px-8 py-3.5">
-    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
-      
-      <!-- Brand Logo & Store Info -->
-      <div class="flex items-center space-x-3">
-        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-brand-600 to-cyan-400 p-0.5 shadow-lg shadow-brand-500/20 flex items-center justify-center">
-          <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-            <i class="fa-solid font-bold fa-eye text-brand-400 text-xl"></i>
-          </div>
+    <!-- Global Navigation Bar -->
+    <nav class="bg-teal-700 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateTo('page-login')">
+                <i class="fa-solid fa-eye text-2xl text-teal-300"></i>
+                <span class="text-xl font-bold tracking-wide">OphthaCare Portal</span>
+            </div>
+            <div id="nav-links" class="hidden md:flex space-x-6 font-medium">
+                <button onclick="navigateTo('page-doctors')" class="hover:text-teal-200 transition">Contact Doctors</button>
+                <button onclick="navigateTo('page-payment')" class="hover:text-teal-200 transition">Pay Consultation</button>
+                <button onclick="logout()" class="bg-teal-800 px-4 py-1.5 rounded-lg hover:bg-teal-900 transition">Logout</button>
+            </div>
         </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-lg font-bold tracking-tight text-white">CAMBRIDGE <span class="text-brand-400">EYE SYSTEM</span></h1>
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span> Live Store Kiosk
-            </span>
-          </div>
-          <p class="text-xs text-slate-400 flex items-center gap-2">
-            <span><i class="fa-solid fa-store text-slate-500 mr-1"></i> Peshawar Central Branch</span>
-            <span class="text-slate-600">•</span>
-            <span id="currentTime" class="text-slate-400 font-mono">14:56 PKT</span>
-          </p>
-        </div>
-      </div>
+    </nav>
 
-      <!-- Quick Contact & Help Channels -->
-      <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
-        <a href="mailto:support.cambridgeeye@gmail.com" class="text-xs px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition flex items-center gap-2">
-          <i class="fa-brands fa-google text-red-400"></i>
-          <span class="hidden md:inline">support.cambridgeeye@gmail.com</span>
-          <span class="md:hidden">Gmail</span>
-        </a>
-        <a href="https://wa.me/923001234567" target="_blank" rel="noopener noreferrer" class="text-xs px-3 py-2 rounded-lg bg-emerald-950/50 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-800/60 transition flex items-center gap-2">
-          <i class="fa-brands fa-whatsapp text-emerald-400"></i>
-          <span class="hidden md:inline">+92 300 1234567</span>
-          <span class="md:hidden">WhatsApp</span>
-        </a>
-        <a href="tel:+92915550199" class="text-xs px-3 py-2 rounded-lg bg-cyan-950/50 hover:bg-cyan-900/60 text-cyan-300 border border-cyan-800/60 transition flex items-center gap-2">
-          <i class="fa-solid fa-phone text-brand-400"></i>
-          <span class="hidden lg:inline">+92 91 5550199</span>
-        </a>
-      </div>
+    <!-- Main Container -->
+    <main class="flex-grow max-w-5xl mx-auto w-full p-4 sm:p-6">
 
-    </div>
-  </header>
-
-  <!-- MAIN KIOSK CONTAINER -->
-  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
-    
-    <!-- STEP PROGRESS INDICATOR BAR -->
-    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-5 backdrop-blur shadow-xl">
-      <div class="grid grid-cols-4 gap-2 sm:gap-4 relative">
-        
-        <!-- Step 1 -->
-        <button onclick="goToStep(1)" id="stepTab-1" class="step-tab group flex flex-col sm:flex-row items-center gap-3 text-left transition-all p-2 rounded-xl text-brand-400 font-semibold">
-          <div class="step-num-icon w-10 h-10 rounded-xl bg-brand-500 text-slate-950 flex items-center justify-center font-bold text-sm shadow-lg shadow-brand-500/20 group-hover:scale-105 transition">
-            1
-          </div>
-          <div class="hidden sm:block">
-            <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Step 1</p>
-            <p class="text-sm font-bold text-white">Patient Info</p>
-          </div>
-        </button>
-
-        <!-- Step 2 -->
-        <button onclick="goToStep(2)" id="stepTab-2" class="step-tab group flex flex-col sm:flex-row items-center gap-3 text-left transition-all p-2 rounded-xl text-slate-400 hover:text-slate-200">
-          <div class="step-num-icon w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 flex items-center justify-center font-bold text-sm group-hover:scale-105 transition">
-            2
-          </div>
-          <div class="hidden sm:block">
-            <p class="text-xs font-medium uppercase tracking-wider text-slate-500">Step 2</p>
-            <p class="text-sm font-bold text-slate-300">Prescription Data</p>
-          </div>
-        </button>
-
-        <!-- Step 3 -->
-        <button onclick="goToStep(3)" id="stepTab-3" class="step-tab group flex flex-col sm:flex-row items-center gap-3 text-left transition-all p-2 rounded-xl text-slate-400 hover:text-slate-200">
-          <div class="step-num-icon w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 flex items-center justify-center font-bold text-sm group-hover:scale-105 transition">
-            3
-          </div>
-          <div class="hidden sm:block">
-            <p class="text-xs font-medium uppercase tracking-wider text-slate-500">Step 3</p>
-            <p class="text-sm font-bold text-slate-300">Frame & Fit</p>
-          </div>
-        </button>
-
-        <!-- Step 4 -->
-        <button onclick="goToStep(4)" id="stepTab-4" class="step-tab group flex flex-col sm:flex-row items-center gap-3 text-left transition-all p-2 rounded-xl text-slate-400 hover:text-slate-200">
-          <div class="step-num-icon w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 flex items-center justify-center font-bold text-sm group-hover:scale-105 transition">
-            4
-          </div>
-          <div class="hidden sm:block">
-            <p class="text-xs font-medium uppercase tracking-wider text-slate-500">Step 4</p>
-            <p class="text-sm font-bold text-slate-300">Dispatch & Review</p>
-          </div>
-        </button>
-
-      </div>
-    </section>
-
-    <!-- CONTENT GRID: STEP FORM (LEFT 2/3) + LIVE RECEIPT SIDEBAR (RIGHT 1/3) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-      
-      <!-- STEP CONTENT CONTAINER -->
-      <div class="lg:col-span-8 bg-slate-900/60 border border-slate-800 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl relative min-h-[580px] flex flex-col justify-between">
-        
-        <div>
-          <!-- STEP 1: PATIENT DETAILS INTAKE -->
-          <div id="stepPanel-1" class="step-panel space-y-6">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div>
-                <h2 class="text-2xl font-bold text-white flex items-center gap-3">
-                  <i class="fa-solid fa-id-card text-brand-400"></i> Patient Basic Details
-                </h2>
-                <p class="text-sm text-slate-400">Please provide patient demographic and direct contact information.</p>
-              </div>
-              <span class="text-xs px-3 py-1 rounded-full bg-brand-950 text-brand-300 border border-brand-800 font-mono">In-Store Intake</span>
+        <!-- PAGE 1: LOGIN -->
+        <section id="page-login" class="page-section active">
+            <div class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl border border-slate-100 mt-10">
+                <div class="text-center mb-6">
+                    <div class="bg-teal-100 text-teal-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-user-lock text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-900">Patient Login</h2>
+                    <p class="text-slate-500 text-sm">Access your eye health records and consult doctors</p>
+                </div>
+                <form onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold mb-1 text-slate-700">Email or Patient ID</label>
+                        <input type="email" required placeholder="patient@example.com" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-1 text-slate-700">Password</label>
+                        <input type="password" required placeholder="••••••••" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                    </div>
+                    <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-lg shadow-md transition">Log In</button>
+                </form>
+                <div class="mt-6 text-center border-t pt-4 text-sm text-slate-600">
+                    Don't have an account? 
+                    <button onclick="navigateTo('page-register')" class="text-teal-600 font-bold hover:underline">Register New Account</button>
+                </div>
             </div>
+        </section>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-              
-              <!-- Full Name -->
-              <div class="md:col-span-2">
-                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Patient Full Name <span class="text-red-400">*</span></label>
-                <div class="relative">
-                  <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                    <i class="fa-solid fa-user"></i>
-                  </span>
-                  <input type="text" id="patientName" placeholder="e.g. Dr. Aamir Khan" oninput="updateLiveSummary()" class="touch-target w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition">
+        <!-- PAGE 2: REGISTRATION & EYE HEALTH INTAKE -->
+        <section id="page-register" class="page-section">
+            <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
+                <div class="border-b pb-4 mb-6">
+                    <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-list text-teal-600"></i> Patient Registration & Eye Profile
+                    </h2>
+                    <p class="text-slate-500 text-sm">Please provide complete health details to assist our ophthalmologists.</p>
                 </div>
-              </div>
 
-              <!-- Age -->
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Age (Years) <span class="text-red-400">*</span></label>
-                <input type="number" id="patientAge" min="1" max="110" placeholder="e.g. 34" oninput="updateLiveSummary()" class="touch-target w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition">
-              </div>
+                <form onsubmit="handleRegistration(event)" class="space-y-6">
+                    <!-- Basic Information -->
+                    <div>
+                        <h3 class="text-md font-bold text-teal-700 uppercase tracking-wider mb-3">1. General Patient Profile</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Full Name *</label>
+                                <input type="text" id="reg-name" required placeholder="John Doe" class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Age *</label>
+                                <input type="number" id="reg-age" min="1" max="120" required placeholder="45" class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Gender *</label>
+                                <select id="reg-gender" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                                    <option value="">Select Gender</option>
+                                    <option>Male</option>
+                                    <option>Female</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
 
-              <!-- Gender -->
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Gender</label>
-                <select id="patientGender" onchange="updateLiveSummary()" class="touch-target w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition">
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other / Unspecified</option>
-                </select>
-              </div>
+                    <!-- Specific Eye Characteristics -->
+                    <div>
+                        <h3 class="text-md font-bold text-teal-700 uppercase tracking-wider mb-3">2. Ocular & Iris Profile</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Iris Color / Particular Traits *</label>
+                                <select id="reg-iris" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                                    <option value="">Select Iris Color</option>
+                                    <option>Brown</option>
+                                    <option>Blue</option>
+                                    <option>Green</option>
+                                    <option>Hazel</option>
+                                    <option>Heterochromia (Different Colors)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Current Vision Corrective Wear</label>
+                                <select id="reg-wear" class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                                    <option>None</option>
+                                    <option>Eyeglasses (Distance)</option>
+                                    <option>Eyeglasses (Reading)</option>
+                                    <option>Contact Lenses</option>
+                                    <option>Bifocals / Multifocals</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
 
-              <!-- Phone / WhatsApp -->
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                  WhatsApp / Phone Number <span class="text-red-400">*</span>
-                </label>
-                <div class="relative">
-                  <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-emerald-400">
-                    <i class="fa-brands fa-whatsapp"></i>
-                  </span>
-                  <input type="tel" id="patientPhone" placeholder="+92 300 1234567" oninput="updateLiveSummary()" class="touch-target w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition">
-                </div>
-              </div>
+                    <!-- Systemic Diseases Impacting Eye Health -->
+                    <div>
+                        <h3 class="text-md font-bold text-teal-700 uppercase tracking-wider mb-2">3. Medical History Impacting Eyes</h3>
+                        <p class="text-xs text-slate-500 mb-3">Check all medical conditions you currently have or have been treated for:</p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <label class="flex items-center space-x-2 bg-slate-50 p-2.5 rounded-lg border hover:bg-slate-100 cursor-pointer">
+                                <input type="checkbox" name="disease" value="Diabetes" class="w-4 h-4 text-teal-600 rounded">
+                                <span class="text-xs font-semibold">Diabetes (Risk of Retinopathy)</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-slate-50 p-2.5 rounded-lg border hover:bg-slate-100 cursor-pointer">
+                                <input type="checkbox" name="disease" value="Hypertension" class="w-4 h-4 text-teal-600 rounded">
+                                <span class="text-xs font-semibold">Hypertension (High BP)</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-slate-50 p-2.5 rounded-lg border hover:bg-slate-100 cursor-pointer">
+                                <input type="checkbox" name="disease" value="Thyroid Disease" class="w-4 h-4 text-teal-600 rounded">
+                                <span class="text-xs font-semibold">Thyroid Disorders (Graves')</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-slate-50 p-2.5 rounded-lg border hover:bg-slate-100 cursor-pointer">
+                                <input type="checkbox" name="disease" value="Rheumatoid Arthritis" class="w-4 h-4 text-teal-600 rounded">
+                                <span class="text-xs font-semibold">Autoimmune / Arthritis</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-slate-50 p-2.5 rounded-lg border hover:bg-slate-100 cursor-pointer">
+                                <input type="checkbox" name="disease" value="Glaucoma History" class="w-4 h-4 text-teal-600 rounded">
+                                <span class="text-xs font-semibold">Family History of Glaucoma</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-slate-50 p-2.5 rounded-lg border hover:bg-slate-100 cursor-pointer">
+                                <input type="checkbox" name="disease" value="Cataracts" class="w-4 h-4 text-teal-600 rounded">
+                                <span class="text-xs font-semibold">Previous Cataract Surgery</span>
+                            </label>
+                        </div>
+                    </div>
 
-              <!-- Email Address -->
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                  Gmail / Email Address <span class="text-slate-400">(Priority Dispatch)</span>
-                </label>
-                <div class="relative">
-                  <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-red-400">
-                    <i class="fa-solid fa-envelope"></i>
-                  </span>
-                  <input type="email" id="patientEmail" placeholder="patient@gmail.com" oninput="updateLiveSummary()" class="touch-target w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition">
-                </div>
-              </div>
+                    <!-- Symptoms -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Current Ocular Symptoms / Notes</label>
+                        <textarea id="reg-notes" rows="3" placeholder="Describe symptoms like dryness, blurry vision, floaters, light sensitivity..." class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500 text-sm"></textarea>
+                    </div>
 
-              <!-- Store Branch Selection -->
-              <div class="md:col-span-2">
-                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Select Servicing Branch</label>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <label class="flex items-center gap-3 p-3 bg-slate-950 border border-brand-500/50 rounded-xl cursor-pointer hover:border-brand-400 transition">
-                    <input type="radio" name="storeBranch" value="Peshawar Central" checked onchange="updateLiveSummary()" class="accent-brand-500">
-                    <span class="text-xs font-medium text-slate-200"><i class="fa-solid fa-location-dot text-brand-400 mr-1"></i> Peshawar Central</span>
-                  </label>
-                  <label class="flex items-center gap-3 p-3 bg-slate-950 border border-slate-800 rounded-xl cursor-pointer hover:border-brand-400 transition">
-                    <input type="radio" name="storeBranch" value="Islamabad F-7" onchange="updateLiveSummary()" class="accent-brand-500">
-                    <span class="text-xs font-medium text-slate-200"><i class="fa-solid fa-location-dot text-brand-400 mr-1"></i> Islamabad F-7</span>
-                  </label>
-                  <label class="flex items-center gap-3 p-3 bg-slate-950 border border-slate-800 rounded-xl cursor-pointer hover:border-brand-400 transition">
-                    <input type="radio" name="storeBranch" value="Lahore Gulberg" onchange="updateLiveSummary()" class="accent-brand-500">
-                    <span class="text-xs font-medium text-slate-200"><i class="fa-solid fa-location-dot text-brand-400 mr-1"></i> Lahore Gulberg</span>
-                  </label>
-                </div>
-              </div>
-
+                    <div class="flex justify-between items-center pt-4 border-t">
+                        <button type="button" onclick="navigateTo('page-login')" class="text-slate-600 font-semibold hover:underline text-sm">Back to Login</button>
+                        <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-8 py-3 rounded-lg shadow-lg transition">Complete Registration</button>
+                    </div>
+                </form>
             </div>
-          </div>
+        </section>
 
-          <!-- STEP 2: OPTICAL PRESCRIPTION ENTRY -->
-          <div id="stepPanel-2" class="step-panel space-y-6 hidden">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div>
-                <h2 class="text-2xl font-bold text-white flex items-center gap-3">
-                  <i class="fa-solid fa-glasses text-brand-400"></i> Optical Prescription Data
-                </h2>
-                <p class="text-sm text-slate-400">Enter SPH, CYL, Axis, and Pupillary Distance (PD) measurements.</p>
-              </div>
-              <button onclick="fillSamplePrescription()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-brand-300 border border-slate-700 transition">
-                <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Load Demo Sample
-              </button>
-            </div>
-
-            <!-- OD / OS Grid -->
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-sm text-slate-300">
-                <thead class="bg-slate-950 text-xs font-semibold uppercase text-brand-400 border-b border-slate-800">
-                  <tr>
-                    <th class="p-3">Eye</th>
-                    <th class="p-3">Sphere (SPH)</th>
-                    <th class="p-3">Cylinder (CYL)</th>
-                    <th class="p-3">Axis (°)</th>
-                    <th class="p-3">ADD Power</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-800/60 bg-slate-950/40">
-                  <!-- OD Right Eye -->
-                  <tr>
-                    <td class="p-3 font-bold text-white flex items-center gap-2">
-                      <span class="w-6 h-6 rounded-md bg-blue-500/20 text-blue-400 text-xs flex items-center justify-center font-mono">OD</span>
-                      Right Eye
-                    </td>
-                    <td class="p-2"><input type="text" id="odSph" placeholder="-1.25" oninput="updateLiveSummary()" class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-white font-mono text-center focus:border-brand-500"></td>
-                    <td class="p-2"><input type="text" id="odCyl" placeholder="-0.50" oninput="updateLiveSummary()" class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-white font-mono text-center focus:border-brand-500"></td>
-                    <td class="p-2"><input type="number" id="odAxis" placeholder="90" min="0" max="180" oninput="updateLiveSummary()" class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-white font-mono text-center focus:border-brand-500"></td>
-                    <td class="p-2"><input type="text" id="odAdd" placeholder="+1.50" oninput="updateLiveSummary()" class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-white font-mono text-center focus:border-brand-500"></td>
-                  </tr>
-                  <!-- OS Left Eye -->
-                  <tr>
-                    <td class="p-3 font-bold text-white flex items-center gap-2">
-                      <span class="w-6 h-6 rounded-md bg-cyan-500/20 text-cyan-400 text-xs flex items-center justify-center font-mono">OS</span>
-                      Left Eye
-                    </td>
-                    <td class="p-2"><input type="text" id="osSph" placeholder="-1.50" oninput="updateLiveSummary()" class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-white font-mono text-center focus:border-brand-500"></td>
-                    <td class="p-2"><input type="text" id="osCyl" placeholder="-0.25" oninput="updateLiveSummary()" class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-white font-mono text-center focus:border-brand-500"></td>
-                    <td class="p-2"><input type="number" id="osAxis" placeholder="180" min="0" max="180" oninput="updateLiveSummary()" class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-white font-mono text-center focus:border-brand-500"></td>
-                    <td class="p-2"><input type="text" id="osAdd" placeholder="+1.50" oninput="updateLiveSummary()" class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-white font-mono text-center focus:border-brand-500"></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <!-- Pupillary Distance Slider & Input -->
-            <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 space-y-3">
-              <div class="flex justify-between items-center">
-                <label class="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                  Pupillary Distance (PD) in mm
-                </label>
-                <span class="text-sm font-mono font-bold text-brand-400" id="pdDisplay">63 mm</span>
-              </div>
-              <div class="flex items-center gap-4">
-                <input type="range" id="pdSlider" min="52" max="76" value="63" oninput="syncPdValue(this.value)" class="w-full accent-brand-500 h-2 bg-slate-800 rounded-lg cursor-pointer">
-                <input type="number" id="pdInput" value="63" min="52" max="76" oninput="syncPdValue(this.value)" class="w-20 p-2 bg-slate-900 border border-slate-800 rounded-lg text-center font-mono text-white text-sm">
-              </div>
-            </div>
-
-            <!-- Lens Type Options -->
-            <div>
-              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Lens Coating & Optical Category</label>
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                <button type="button" onclick="selectLensType('Single Vision', this)" class="lens-type-btn p-3 rounded-xl bg-brand-950/60 border border-brand-500 text-left text-xs font-medium text-white transition">
-                  <div class="font-bold text-brand-300">Single Vision</div>
-                  <div class="text-[11px] text-slate-400">Distance or Reading</div>
-                </button>
-                <button type="button" onclick="selectLensType('Bifocal D-Seg', this)" class="lens-type-btn p-3 rounded-xl bg-slate-950 border border-slate-800 text-left text-xs font-medium text-slate-300 hover:border-slate-700 transition">
-                  <div class="font-bold">Bifocal D-Seg</div>
-                  <div class="text-[11px] text-slate-500">Dual Field View</div>
-                </button>
-                <button type="button" onclick="selectLensType('Progressive No-Line', this)" class="lens-type-btn p-3 rounded-xl bg-slate-950 border border-slate-800 text-left text-xs font-medium text-slate-300 hover:border-slate-700 transition">
-                  <div class="font-bold">Progressive</div>
-                  <div class="text-[11px] text-slate-500">Multi-Focal Seamless</div>
-                </button>
-                <button type="button" onclick="selectLensType('Blue-Cut Shield', this)" class="lens-type-btn p-3 rounded-xl bg-slate-950 border border-slate-800 text-left text-xs font-medium text-slate-300 hover:border-slate-700 transition">
-                  <div class="font-bold">Blue-Cut Shield</div>
-                  <div class="text-[11px] text-slate-500">Digital Screen Filter</div>
-                </button>
-                <button type="button" onclick="selectLensType('Photochromic Transition', this)" class="lens-type-btn p-3 rounded-xl bg-slate-950 border border-slate-800 text-left text-xs font-medium text-slate-300 hover:border-slate-700 transition">
-                  <div class="font-bold">Photochromic</div>
-                  <div class="text-[11px] text-slate-500">Auto Sun Adaptive</div>
-                </button>
-                <button type="button" onclick="selectLensType('High Index 1.67 Ultra-Thin', this)" class="lens-type-btn p-3 rounded-xl bg-slate-950 border border-slate-800 text-left text-xs font-medium text-slate-300 hover:border-slate-700 transition">
-                  <div class="font-bold">High Index 1.67</div>
-                  <div class="text-[11px] text-slate-500">Ultra-Thin Prescriptions</div>
-                </button>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- STEP 3: FRAME STYLE SELECTOR & FACE SHAPE MATCHING -->
-          <div id="stepPanel-3" class="step-panel space-y-6 hidden">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 gap-3">
-              <div>
-                <h2 class="text-2xl font-bold text-white flex items-center gap-3">
-                  <i class="fa-solid fa-expand text-brand-400"></i> Frame Style & Face Compatibility
-                </h2>
-                <p class="text-sm text-slate-400">Select face shape to highlight ideal optical frame contours.</p>
-              </div>
-
-              <!-- Face Shape Filter Selector -->
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-semibold text-slate-400 uppercase">Face Shape:</span>
-                <select id="faceShapeFilter" onchange="filterFramesByFaceShape(this.value)" class="px-3 py-2 bg-slate-950 border border-brand-500/50 text-brand-300 rounded-xl text-xs font-semibold focus:outline-none">
-                  <option value="ALL">All Face Shapes</option>
-                  <option value="ROUND">Round Face Shape</option>
-                  <option value="OVAL">Oval Face Shape</option>
-                  <option value="SQUARE">Square Face Shape</option>
-                  <option value="HEART">Heart / Triangular</option>
-                  <option value="DIAMOND">Diamond / High Cheek</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- FRAME CATALOG GRID -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[380px] overflow-y-auto pr-2" id="frameCatalog">
-              
-              <!-- Frame 1: Rectangle -->
-              <div data-shape="ROUND,OVAL" onclick="selectFrameCard(this, 'Rectangle Modern', 'Acetate Black', 120)" class="frame-card relative bg-slate-950 border-2 border-brand-500 rounded-2xl p-4 cursor-pointer hover:scale-[1.02] transition shadow-lg">
-                <span class="compatibility-badge absolute top-3 right-3 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Ideal Match</span>
-                <div class="h-20 flex items-center justify-center my-2">
-                  <!-- SVG Frame Outline -->
-                  <svg class="w-36 h-12 text-slate-200" viewBox="0 0 200 60" fill="none" stroke="currentColor" stroke-width="3">
-                    <rect x="10" y="10" width="75" height="40" rx="6" />
-                    <rect x="115" y="10" width="75" height="40" rx="6" />
-                    <path d="M85 25 Q100 20 115 25" stroke-width="4"/>
-                  </svg>
-                </div>
-                <div class="flex justify-between items-end">
-                  <div>
-                    <h3 class="font-bold text-white text-sm">Rectangle Modern</h3>
-                    <p class="text-xs text-slate-400">TR90 Matte / Black</p>
-                  </div>
-                  <span class="text-xs font-mono font-bold text-brand-400">$120</span>
-                </div>
-              </div>
-
-              <!-- Frame 2: Round Wire -->
-              <div data-shape="SQUARE,HEART,DIAMOND" onclick="selectFrameCard(this, 'Round Classic', 'Gold Titanium', 145)" class="frame-card relative bg-slate-950 border border-slate-800 rounded-2xl p-4 cursor-pointer hover:border-brand-500 transition shadow-lg">
-                <span class="compatibility-badge absolute top-3 right-3 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">Standard Fit</span>
-                <div class="h-20 flex items-center justify-center my-2">
-                  <svg class="w-36 h-12 text-amber-400" viewBox="0 0 200 60" fill="none" stroke="currentColor" stroke-width="3">
-                    <circle cx="50" cy="30" r="22" />
-                    <circle cx="150" cy="30" r="22" />
-                    <path d="M72 28 Q100 22 128 28" stroke-width="3"/>
-                  </svg>
-                </div>
-                <div class="flex justify-between items-end">
-                  <div>
-                    <h3 class="font-bold text-white text-sm">Round Classic</h3>
-                    <p class="text-xs text-slate-400">Titanium / Gold Wire</p>
-                  </div>
-                  <span class="text-xs font-mono font-bold text-brand-400">$145</span>
-                </div>
-              </div>
-
-              <!-- Frame 3: Browline / Clubmaster -->
-              <div data-shape="OVAL,DIAMOND,ROUND" onclick="selectFrameCard(this, 'Browline Clubmaster', 'Tortoise Hybrid', 160)" class="frame-card relative bg-slate-950 border border-slate-800 rounded-2xl p-4 cursor-pointer hover:border-brand-500 transition shadow-lg">
-                <span class="compatibility-badge absolute top-3 right-3 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">Standard Fit</span>
-                <div class="h-20 flex items-center justify-center my-2">
-                  <svg class="w-36 h-12 text-amber-600" viewBox="0 0 200 60" fill="none" stroke="currentColor" stroke-width="3">
-                    <path d="M10 12 L85 12 L75 48 L20 48 Z" stroke-width="3"/>
-                    <path d="M115 12 L190 12 L180 48 L125 48 Z" stroke-width="3"/>
-                    <path d="M85 20 L115 20" stroke-width="4"/>
-                  </svg>
-                </div>
-                <div class="flex justify-between items-end">
-                  <div>
-                    <h3 class="font-bold text-white text-sm">Browline Heritage</h3>
-                    <p class="text-xs text-slate-400">Acetate & Metal / Amber</p>
-                  </div>
-                  <span class="text-xs font-mono font-bold text-brand-400">$160</span>
-                </div>
-              </div>
-
-              <!-- Frame 4: Aviator -->
-              <div data-shape="HEART,OVAL" onclick="selectFrameCard(this, 'Aviator Pilot', 'Silver Steel', 135)" class="frame-card relative bg-slate-950 border border-slate-800 rounded-2xl p-4 cursor-pointer hover:border-brand-500 transition shadow-lg">
-                <span class="compatibility-badge absolute top-3 right-3 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">Standard Fit</span>
-                <div class="h-20 flex items-center justify-center my-2">
-                  <svg class="w-36 h-12 text-slate-300" viewBox="0 0 200 60" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M15 15 C 25 10, 75 10, 80 25 C 80 45, 30 52, 15 35 Z" />
-                    <path d="M185 15 C 175 10, 125 10, 120 25 C 120 45, 170 52, 185 35 Z" />
-                    <path d="M80 18 Q 100 12 120 18 M80 25 Q 100 20 120 25" stroke-width="2"/>
-                  </svg>
-                </div>
-                <div class="flex justify-between items-end">
-                  <div>
-                    <h3 class="font-bold text-white text-sm">Aviator Pilot</h3>
-                    <p class="text-xs text-slate-400">Stainless Steel / Silver</p>
-                  </div>
-                  <span class="text-xs font-mono font-bold text-brand-400">$135</span>
-                </div>
-              </div>
-
-              <!-- Frame 5: Cat-Eye -->
-              <div data-shape="SQUARE,DIAMOND" onclick="selectFrameCard(this, 'Cat-Eye Elegance', 'Crimson Polycarbonate', 150)" class="frame-card relative bg-slate-950 border border-slate-800 rounded-2xl p-4 cursor-pointer hover:border-brand-500 transition shadow-lg">
-                <span class="compatibility-badge absolute top-3 right-3 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">Standard Fit</span>
-                <div class="h-20 flex items-center justify-center my-2">
-                  <svg class="w-36 h-12 text-rose-400" viewBox="0 0 200 60" fill="none" stroke="currentColor" stroke-width="3">
-                    <path d="M5 10 L85 20 L70 48 L20 45 Z" />
-                    <path d="M195 10 L115 20 L130 48 L180 45 Z" />
-                    <path d="M85 20 L115 20" />
-                  </svg>
-                </div>
-                <div class="flex justify-between items-end">
-                  <div>
-                    <h3 class="font-bold text-white text-sm">Cat-Eye Contour</h3>
-                    <p class="text-xs text-slate-400">Molded Poly / Crimson</p>
-                  </div>
-                  <span class="text-xs font-mono font-bold text-brand-400">$150</span>
-                </div>
-              </div>
-
-              <!-- Frame 6: Rimless Minimal -->
-              <div data-shape="ROUND,OVAL,HEART" onclick="selectFrameCard(this, 'Rimless Minimal', 'Gunmetal Flex-Ti', 175)" class="frame-card relative bg-slate-950 border border-slate-800 rounded-2xl p-4 cursor-pointer hover:border-brand-500 transition shadow-lg">
-                <span class="compatibility-badge absolute top-3 right-3 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">Standard Fit</span>
-                <div class="h-20 flex items-center justify-center my-2">
-                  <svg class="w-36 h-12 text-brand-400" viewBox="0 0 200 60" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3,3">
-                    <rect x="15" y="15" width="70" height="35" rx="4" />
-                    <rect x="115" y="15" width="70" height="35" rx="4" />
-                    <path d="M85 25 Q100 20 115 25" stroke-style="solid" stroke-width="3"/>
-                  </svg>
-                </div>
-                <div class="flex justify-between items-end">
-                  <div>
-                    <h3 class="font-bold text-white text-sm">Rimless Minimal</h3>
-                    <p class="text-xs text-slate-400">Flex-Titanium / Gunmetal</p>
-                  </div>
-                  <span class="text-xs font-mono font-bold text-brand-400">$175</span>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Frame Customization Bar -->
-            <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <span class="text-xs text-slate-400 block font-semibold uppercase">Selected Frame & Finish:</span>
-                <span id="selectedFrameText" class="text-sm font-bold text-white">Rectangle Modern (TR90 Matte / Black)</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-xs text-slate-400">Frame Tint:</span>
-                <button onclick="setFrameColor('Black')" class="w-6 h-6 rounded-full bg-slate-900 border border-white ring-2 ring-brand-500"></button>
-                <button onclick="setFrameColor('Gold')" class="w-6 h-6 rounded-full bg-amber-400 border border-slate-800"></button>
-                <button onclick="setFrameColor('Silver')" class="w-6 h-6 rounded-full bg-slate-300 border border-slate-800"></button>
-                <button onclick="setFrameColor('Crimson')" class="w-6 h-6 rounded-full bg-rose-600 border border-slate-800"></button>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- STEP 4: DISPATCH & NOTIFICATION PREFERENCES -->
-          <div id="stepPanel-4" class="step-panel space-y-6 hidden">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div>
-                <h2 class="text-2xl font-bold text-white flex items-center gap-3">
-                  <i class="fa-solid fa-paper-plane text-brand-400"></i> Dispatch & Notification Setup
-                </h2>
-                <p class="text-sm text-slate-400">Choose preferred channels for digital receipt and store pickup alerts.</p>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              
-              <!-- WhatsApp Channel -->
-              <label class="p-5 rounded-2xl bg-slate-950 border-2 border-brand-500 cursor-pointer flex items-start gap-4">
-                <input type="checkbox" id="dispatchWhatsapp" checked class="mt-1 accent-emerald-500 w-5 h-5">
+        <!-- PAGE 3: CONTACT DOCTORS & APPOINTMENT BOOKING -->
+        <section id="page-doctors" class="page-section">
+            <div class="mb-6 flex justify-between items-center">
                 <div>
-                  <div class="flex items-center gap-2">
-                    <i class="fa-brands fa-whatsapp text-emerald-400 text-lg"></i>
-                    <h3 class="font-bold text-white text-base">WhatsApp Instant Dispatch</h3>
-                  </div>
-                  <p class="text-xs text-slate-400 mt-1">Receive prescription copy, optical measurements, and order ready notifications via automated WhatsApp bot.</p>
+                    <h2 class="text-2xl font-bold text-slate-900">Consult Ophthalmic Specialists</h2>
+                    <p class="text-slate-500 text-sm">Select a doctor to start consultation or schedule an eye exam.</p>
                 </div>
-              </label>
-
-              <!-- Gmail Channel -->
-              <label class="p-5 rounded-2xl bg-slate-950 border-2 border-brand-500 cursor-pointer flex items-start gap-4">
-                <input type="checkbox" id="dispatchGmail" checked class="mt-1 accent-red-500 w-5 h-5">
-                <div>
-                  <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-envelope text-red-400 text-lg"></i>
-                    <h3 class="font-bold text-white text-base">Gmail Digital Invoice & PDF</h3>
-                  </div>
-                  <p class="text-xs text-slate-400 mt-1">Send complete diagnostic report and optical store tax invoice to registered Gmail address.</p>
+                <div class="bg-teal-100 text-teal-800 text-xs px-3 py-1.5 rounded-full font-semibold" id="patient-badge">
+                    Patient Profile Active
                 </div>
-              </label>
-
-              <!-- SMS Alerts -->
-              <label class="p-5 rounded-2xl bg-slate-950 border border-slate-800 cursor-pointer flex items-start gap-4">
-                <input type="checkbox" id="dispatchSms" class="mt-1 accent-brand-500 w-5 h-5">
-                <div>
-                  <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-comment-sms text-cyan-400 text-lg"></i>
-                    <h3 class="font-bold text-white text-base">SMS Mobile Alerts</h3>
-                  </div>
-                  <p class="text-xs text-slate-400 mt-1">Receive quick SMS status updates when lenses finish cutting and edging in the lab.</p>
-                </div>
-              </label>
-
-              <!-- Express Fitting Queue -->
-              <label class="p-5 rounded-2xl bg-slate-950 border border-slate-800 cursor-pointer flex items-start gap-4">
-                <input type="checkbox" id="expressLabQueue" class="mt-1 accent-amber-500 w-5 h-5">
-                <div>
-                  <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-bolt text-amber-400 text-lg"></i>
-                    <h3 class="font-bold text-white text-base">Same-Day Express Edging</h3>
-                  </div>
-                  <p class="text-xs text-slate-400 mt-1">Priority routing to store optical technician for 2-hour turnaround ($15 surcharge).</p>
-                </div>
-              </label>
-
             </div>
 
-            <!-- Notes for Optician -->
-            <div>
-              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Special Notes for Optical Lab Technician</label>
-              <textarea id="opticianNotes" rows="3" placeholder="e.g. Patient prefers slightly higher nose pad placement..." class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:border-brand-500"></textarea>
+            <!-- Doctor Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Doctor 1 -->
+                <div class="bg-white rounded-xl shadow-md border overflow-hidden flex flex-col justify-between">
+                    <div class="p-5">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center text-teal-700 font-bold text-xl">
+                                DR
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900">Dr. Sarah Jenkins</h3>
+                                <p class="text-xs text-teal-600 font-semibold">Retinal Specialist</p>
+                                <p class="text-xs text-slate-400">12+ Yrs Experience</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-600 mb-4">Expert in Diabetic Retinopathy, Macular Degeneration, and Iris Diagnostics.</p>
+                        <div class="text-xs font-bold text-slate-700">Fee: <span class="text-teal-600">$80.00</span></div>
+                    </div>
+                    <div class="bg-slate-50 p-4 border-t">
+                        <button onclick="selectDoctor('Dr. Sarah Jenkins', 80)" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 rounded-lg text-sm transition">Book & Consult</button>
+                    </div>
+                </div>
+
+                <!-- Doctor 2 -->
+                <div class="bg-white rounded-xl shadow-md border overflow-hidden flex flex-col justify-between">
+                    <div class="p-5">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-bold text-xl">
+                                DR
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900">Dr. Alan Vance</h3>
+                                <p class="text-xs text-blue-600 font-semibold">Glaucoma & Cornea Expert</p>
+                                <p class="text-xs text-slate-400">15+ Yrs Experience</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-600 mb-4">Specializes in intraocular pressure management, corneal diseases, and refractive issues.</p>
+                        <div class="text-xs font-bold text-slate-700">Fee: <span class="text-teal-600">$95.00</span></div>
+                    </div>
+                    <div class="bg-slate-50 p-4 border-t">
+                        <button onclick="selectDoctor('Dr. Alan Vance', 95)" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 rounded-lg text-sm transition">Book & Consult</button>
+                    </div>
+                </div>
+
+                <!-- Doctor 3 -->
+                <div class="bg-white rounded-xl shadow-md border overflow-hidden flex flex-col justify-between">
+                    <div class="p-5">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold text-xl">
+                                DR
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900">Dr. Elena Rostova</h3>
+                                <p class="text-xs text-indigo-600 font-semibold">Pediatric Ophthalmology</p>
+                                <p class="text-xs text-slate-400">9+ Yrs Experience</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-600 mb-4">Focused on strabismus, pediatric eye diseases, and early iris anomaly detection.</p>
+                        <div class="text-xs font-bold text-slate-700">Fee: <span class="text-teal-600">$70.00</span></div>
+                    </div>
+                    <div class="bg-slate-50 p-4 border-t">
+                        <button onclick="selectDoctor('Dr. Elena Rostova', 70)" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 rounded-lg text-sm transition">Book & Consult</button>
+                    </div>
+                </div>
             </div>
 
-          </div>
-
-        </div>
-
-        <!-- NAVIGATION CONTROLS BAR -->
-        <div class="pt-6 border-t border-slate-800 flex justify-between items-center mt-6">
-          <button id="prevBtn" onclick="navigateStep(-1)" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2" disabled>
-            <i class="fa-solid fa-arrow-left"></i> Previous
-          </button>
-
-          <button id="nextBtn" onclick="navigateStep(1)" class="px-6 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-cyan-500 hover:from-brand-400 hover:to-cyan-400 text-slate-950 font-bold text-sm shadow-lg shadow-brand-500/25 transition flex items-center gap-2">
-            Next Step <i class="fa-solid fa-arrow-right"></i>
-          </button>
-        </div>
-
-      </div>
-
-      <!-- RIGHT SIDEBAR: LIVE PRESCRIPTION SUMMARY & RECEIPT PREVIEW -->
-      <div class="lg:col-span-4 space-y-6">
-        
-        <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 backdrop-blur-xl shadow-2xl relative">
-          
-          <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-            <h3 class="text-sm font-bold uppercase tracking-wider text-brand-400 flex items-center gap-2">
-              <i class="fa-solid fa-receipt"></i> Live Optical Summary
-            </h3>
-            <span class="text-[10px] font-mono bg-slate-800 text-slate-300 px-2 py-0.5 rounded">AUTO-SYNC</span>
-          </div>
-
-          <!-- Patient Badge -->
-          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 mb-4 space-y-1">
-            <div class="flex justify-between items-center">
-              <span class="text-xs text-slate-400 font-semibold">PATIENT</span>
-              <span id="summaryBranch" class="text-[10px] font-semibold text-brand-300 bg-brand-950 px-2 py-0.5 rounded border border-brand-800">Peshawar Central</span>
+            <!-- Direct Message / Emergency Note Box -->
+            <div class="bg-white p-6 rounded-xl shadow-md border">
+                <h3 class="font-bold text-slate-800 mb-2">Send Direct Message / Query to On-Call Clinic</h3>
+                <form onsubmit="sendMessage(event)" class="space-y-3">
+                    <textarea required placeholder="Write a direct message to our clinical staff or request doctor availability..." class="w-full p-3 border rounded-lg text-sm focus:ring-2 focus:ring-teal-500"></textarea>
+                    <button type="submit" class="bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 rounded-lg text-sm font-semibold">Send Inquiry</button>
+                </form>
             </div>
-            <p id="summaryName" class="text-base font-bold text-white">Dr. Aamir Khan</p>
-            <p id="summaryContact" class="text-xs font-mono text-slate-400">+92 300 1234567 • patient@gmail.com</p>
-          </div>
+        </section>
 
-          <!-- Prescription Matrix Mini -->
-          <div class="space-y-2 mb-4">
-            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider flex justify-between">
-              <span>Eye Prescription</span>
-              <span id="summaryPd" class="text-brand-400 font-mono">PD: 63mm</span>
+        <!-- PAGE 4: PAYMENT & VERIFICATION SYSTEM -->
+        <section id="page-payment" class="page-section">
+            <div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
+                <div class="border-b pb-4 mb-6">
+                    <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-credit-card text-teal-600"></i> Consultation Payment Gateway
+                    </h2>
+                    <p class="text-slate-500 text-sm">Secure payment verification for your doctor consultation</p>
+                </div>
+
+                <!-- Invoice Summary -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs text-slate-500 uppercase font-bold">Selected Doctor</p>
+                        <p id="pay-doc-name" class="text-lg font-bold text-slate-800">Select a doctor first</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs text-slate-500 uppercase font-bold">Consultation Fee</p>
+                        <p id="pay-amount" class="text-2xl font-black text-teal-600">$0.00</p>
+                    </div>
+                </div>
+
+                <!-- Payment Form -->
+                <form id="payment-form" onsubmit="processPayment(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Payment Method</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <label class="border p-3 rounded-lg flex flex-col items-center cursor-pointer hover:border-teal-500">
+                                <input type="radio" name="paymethod" value="card" checked class="mb-1">
+                                <span class="text-xs font-bold">Credit/Debit Card</span>
+                            </label>
+                            <label class="border p-3 rounded-lg flex flex-col items-center cursor-pointer hover:border-teal-500">
+                                <input type="radio" name="paymethod" value="insurance" class="mb-1">
+                                <span class="text-xs font-bold">Health Insurance</span>
+                            </label>
+                            <label class="border p-3 rounded-lg flex flex-col items-center cursor-pointer hover:border-teal-500">
+                                <input type="radio" name="paymethod" value="wallet" class="mb-1">
+                                <span class="text-xs font-bold">Digital Wallet</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Cardholder Name</label>
+                        <input type="text" id="card-name" required placeholder="John Doe" class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="col-span-2">
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Card Number</label>
+                            <input type="text" maxlength="19" placeholder="4532 •••• •••• 8890" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">CVV</label>
+                            <input type="password" maxlength="4" placeholder="123" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="pay-btn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg shadow-md transition mt-4">
+                        Pay & Verify Appointment
+                    </button>
+                </form>
+
+                <!-- Payment Status / Receipt Output -->
+                <div id="payment-receipt" class="hidden mt-6 p-6 bg-emerald-50 border border-emerald-200 rounded-xl">
+                    <div class="flex items-center space-x-3 text-emerald-800 mb-3">
+                        <i class="fa-solid fa-circle-check text-2xl text-emerald-600"></i>
+                        <div>
+                            <h4 class="font-bold text-lg">Payment Verified & Appointment Confirmed!</h4>
+                            <p class="text-xs text-emerald-600">Transaction ID: <span id="txn-id" class="font-mono font-bold">TXN-99823412</span></p>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-600 space-y-1 border-t border-emerald-200 pt-3">
+                        <p><strong>Patient Name:</strong> <span id="rec-patient">John Doe</span></p>
+                        <p><strong>Assigned Doctor:</strong> <span id="rec-doctor">Dr. Sarah Jenkins</span></p>
+                        <p><strong>Status:</strong> <span class="bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded font-bold">VERIFIED</span></p>
+                    </div>
+                    <button onclick="navigateTo('page-doctors')" class="mt-4 w-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-2 rounded-lg text-sm">
+                        Return to Doctor Portal
+                    </button>
+                </div>
             </div>
+        </section>
+
+    </main>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Global Application State
+        const state = {
+            isRegistered: false,
+            isLoggedIn: false,
+            patient: {},
+            selectedDoctor: null,
+            fee: 0
+        };
+
+        // Page Router
+        function navigateTo(pageId) {
+            // Guard route: Patients cannot visit doctors or payment without registering/logging in
+            if ((pageId === 'page-doctors' || pageId === 'page-payment') && !state.isLoggedIn) {
+                alert("Access Denied: Please complete registration and log in first.");
+                navigateTo('page-login');
+                return;
+            }
+
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+
+            // Toggle Nav links visibility
+            const nav = document.getElementById('nav-links');
+            if (state.isLoggedIn) {
+                nav.classList.remove('hidden');
+            } else {
+                nav.classList.add('hidden');
+            }
+        }
+
+        // Handle Patient Registration
+        function handleRegistration(e) {
+            e.preventDefault();
             
-            <div class="grid grid-cols-2 gap-2 text-xs font-mono">
-              <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-                <span class="text-blue-400 font-bold block mb-1">OD (Right)</span>
-                <div class="text-slate-300">SPH: <span id="summaryOdSph" class="text-white">-1.25</span></div>
-                <div class="text-slate-300">CYL: <span id="summaryOdCyl" class="text-white">-0.50</span></div>
-                <div class="text-slate-300">AXIS: <span id="summaryOdAxis" class="text-white">90°</span></div>
-              </div>
-              <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-                <span class="text-cyan-400 font-bold block mb-1">OS (Left)</span>
-                <div class="text-slate-300">SPH: <span id="summaryOsSph" class="text-white">-1.50</span></div>
-                <div class="text-slate-300">CYL: <span id="summaryOsCyl" class="text-white">-0.25</span></div>
-                <div class="text-slate-300">AXIS: <span id="summaryOsAxis" class="text-white">180°</span></div>
-              </div>
-            </div>
-          </div>
+            // Gather selected medical conditions
+            const selectedDiseases = Array.from(document.querySelectorAll('input[name="disease"]:checked'))
+                                         .map(cb => cb.value);
 
-          <!-- Lens & Frame Selection -->
-          <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 mb-4 space-y-2 text-xs">
-            <div class="flex justify-between text-slate-300">
-              <span class="text-slate-400">Lens Type:</span>
-              <span id="summaryLensType" class="font-semibold text-brand-300">Single Vision</span>
-            </div>
-            <div class="flex justify-between text-slate-300">
-              <span class="text-slate-400">Frame Model:</span>
-              <span id="summaryFrameName" class="font-semibold text-white">Rectangle Modern</span>
-            </div>
-            <div class="flex justify-between text-slate-300">
-              <span class="text-slate-400">Frame Price:</span>
-              <span id="summaryFramePrice" class="font-mono font-bold text-brand-400">$120.00</span>
-            </div>
-          </div>
+            state.patient = {
+                name: document.getElementById('reg-name').value,
+                age: document.getElementById('reg-age').value,
+                gender: document.getElementById('reg-gender').value,
+                iris: document.getElementById('reg-iris').value,
+                wear: document.getElementById('reg-wear').value,
+                diseases: selectedDiseases,
+                notes: document.getElementById('reg-notes').value
+            };
 
-          <!-- Total Calculation -->
-          <div class="border-t border-slate-800 pt-3 flex justify-between items-center mb-5">
-            <div>
-              <span class="text-xs text-slate-400 uppercase font-semibold block">Estimated Total</span>
-              <span class="text-[10px] text-slate-500">Includes anti-scratch coating</span>
-            </div>
-            <span id="summaryTotal" class="text-2xl font-black font-mono text-emerald-400">$120.00</span>
-          </div>
+            state.isRegistered = true;
+            state.isLoggedIn = true;
 
-          <!-- Direct Dispatch Quick Actions -->
-          <div class="space-y-2">
-            <button onclick="triggerQuickWhatsApp()" class="w-full py-2.5 px-4 rounded-xl bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-700/60 text-emerald-300 font-semibold text-xs transition flex items-center justify-center gap-2">
-              <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i> Direct Send to WhatsApp
-            </button>
-            <button onclick="triggerQuickGmail()" class="w-full py-2.5 px-4 rounded-xl bg-red-950/80 hover:bg-red-900 border border-red-700/60 text-red-300 font-semibold text-xs transition flex items-center justify-center gap-2">
-              <i class="fa-solid fa-envelope text-red-400 text-sm"></i> Dispatch via Gmail
-            </button>
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-  </main>
-
-  <!-- CONFIRMATION / PRINTABLE TICKET MODAL -->
-  <div id="confirmationModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
-      
-      <div class="text-center space-y-2">
-        <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-3xl mx-auto">
-          <i class="fa-solid fa-circle-check"></i>
-        </div>
-        <h2 class="text-2xl font-bold text-white">Intake Complete & Order Registered</h2>
-        <p class="text-xs text-slate-400">Order ID: <span id="modalOrderId" class="font-mono text-brand-400 font-bold">CES-2026-8942</span></p>
-      </div>
-
-      <!-- Printable Ticket Area -->
-      <div id="printableTicket" class="bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-4 text-xs font-mono text-slate-300">
-        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-          <div>
-            <h3 class="font-bold text-sm text-white font-sans">CAMBRIDGE EYE SYSTEM</h3>
-            <p class="text-[10px] text-slate-400 font-sans">Optical Prescription & Workshop Ticket</p>
-          </div>
-          <div class="text-right">
-            <span class="bg-brand-500/20 text-brand-300 px-2 py-1 rounded text-[10px] font-sans font-bold">STORE COPY</span>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 text-slate-300">
-          <div>
-            <p><span class="text-slate-500">PATIENT:</span> <strong id="ticketName" class="text-white">Dr. Aamir Khan</strong></p>
-            <p><span class="text-slate-500">PHONE:</span> <span id="ticketPhone">+92 300 1234567</span></p>
-            <p><span class="text-slate-500">GMAIL:</span> <span id="ticketEmail">patient@gmail.com</span></p>
-          </div>
-          <div>
-            <p><span class="text-slate-500">BRANCH:</span> <span id="ticketBranch">Peshawar Central</span></p>
-            <p><span class="text-slate-500">DATE:</span> <span id="ticketDate">2026-10-14</span></p>
-            <p><span class="text-slate-500">PD:</span> <strong id="ticketPd" class="text-brand-400">63 mm</strong></p>
-          </div>
-        </div>
-
-        <!-- Prescription Matrix -->
-        <table class="w-full text-center border-collapse border border-slate-800 my-2">
-          <thead class="bg-slate-900 text-brand-400">
-            <tr>
-              <th class="border border-slate-800 p-1.5">EYE</th>
-              <th class="border border-slate-800 p-1.5">SPH</th>
-              <th class="border border-slate-800 p-1.5">CYL</th>
-              <th class="border border-slate-800 p-1.5">AXIS</th>
-              <th class="border border-slate-800 p-1.5">ADD</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="border border-slate-800 p-1.5 font-bold text-blue-400">OD</td>
-              <td id="ticketOdSph" class="border border-slate-800 p-1.5">-1.25</td>
-              <td id="ticketOdCyl" class="border border-slate-800 p-1.5">-0.50</td>
-              <td id="ticketOdAxis" class="border border-slate-800 p-1.5">90°</td>
-              <td id="ticketOdAdd" class="border border-slate-800 p-1.5">+1.50</td>
-            </tr>
-            <tr>
-              <td class="border border-slate-800 p-1.5 font-bold text-cyan-400">OS</td>
-              <td id="ticketOsSph" class="border border-slate-800 p-1.5">-1.50</td>
-              <td id="ticketOsCyl" class="border border-slate-800 p-1.5">-0.25</td>
-              <td id="ticketOsAxis" class="border border-slate-800 p-1.5">180°</td>
-              <td id="ticketOsAdd" class="border border-slate-800 p-1.5">+1.50</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="flex justify-between items-center pt-2">
-          <div>
-            <p><span class="text-slate-500">FRAME:</span> <strong id="ticketFrame" class="text-white">Rectangle Modern</strong></p>
-            <p><span class="text-slate-500">LENS:</span> <strong id="ticketLens" class="text-brand-400">Single Vision</strong></p>
-          </div>
-          
-          <!-- QR Code Simulation -->
-          <div class="p-2 bg-white rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-qrcode text-slate-950 text-4xl"></i>
-          </div>
-        </div>
-      </div>
-
-      <!-- Action Buttons in Modal -->
-      <div class="flex flex-wrap gap-3 justify-end no-print">
-        <button onclick="printTicket()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs transition flex items-center gap-2">
-          <i class="fa-solid fa-print"></i> Print Workshop Slip
-        </button>
-        <button onclick="sendModalWhatsApp()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition flex items-center gap-2">
-          <i class="fa-brands fa-whatsapp"></i> Send WhatsApp
-        </button>
-        <button onclick="sendModalGmail()" class="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold text-xs transition flex items-center gap-2">
-          <i class="fa-solid fa-envelope"></i> Send Gmail
-        </button>
-        <button onclick="closeModal()" class="px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold text-xs transition">
-          Done / Reset Kiosk
-        </button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- JAVASCRIPT LOGIC & STATE MANAGEMENT -->
-  <script>
-    // State Variables
-    let currentStep = 1;
-    let selectedFrame = {
-      name: 'Rectangle Modern',
-      finish: 'TR90 Matte / Black',
-      price: 120,
-      color: 'Black'
-    };
-    let selectedLensType = 'Single Vision';
-
-    // Page Load Init
-    window.onload = function() {
-      updateLiveSummary();
-      updateTime();
-      setInterval(updateTime, 30000);
-    };
-
-    function updateTime() {
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' PKT';
-      document.getElementById('currentTime').innerText = timeStr;
-    }
-
-    // Step Navigation logic
-    function goToStep(step) {
-      if(step < 1 || step > 4) return;
-      currentStep = step;
-
-      // Hide all panels
-      document.querySelectorAll('.step-panel').forEach(panel => panel.classList.add('hidden'));
-      document.getElementById(`stepPanel-${step}`).classList.remove('hidden');
-
-      // Update Step Tabs
-      for(let i=1; i<=4; i++) {
-        const tab = document.getElementById(`stepTab-${i}`);
-        const iconDiv = tab.querySelector('.step-num-icon');
-
-        if(i === step) {
-          tab.className = "step-tab group flex flex-col sm:flex-row items-center gap-3 text-left transition-all p-2 rounded-xl text-brand-400 font-semibold";
-          iconDiv.className = "step-num-icon w-10 h-10 rounded-xl bg-brand-500 text-slate-950 flex items-center justify-center font-bold text-sm shadow-lg shadow-brand-500/20";
-        } else if(i < step) {
-          tab.className = "step-tab group flex flex-col sm:flex-row items-center gap-3 text-left transition-all p-2 rounded-xl text-emerald-400 font-medium";
-          iconDiv.className = "step-num-icon w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-bold text-sm";
-          iconDiv.innerHTML = '<i class="fa-solid fa-check"></i>';
-        } else {
-          tab.className = "step-tab group flex flex-col sm:flex-row items-center gap-3 text-left transition-all p-2 rounded-xl text-slate-500 hover:text-slate-300";
-          iconDiv.className = "step-num-icon w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 text-slate-400 flex items-center justify-center font-bold text-sm";
-          iconDiv.innerText = i;
+            alert(`Registration Complete! Welcome, ${state.patient.name}.`);
+            
+            // Update UI with Patient Info
+            document.getElementById('patient-badge').innerText = `Patient: ${state.patient.name} (${state.patient.age} yrs)`;
+            
+            // Redirect to Doctor Contact Page
+            navigateTo('page-doctors');
         }
-      }
 
-      // Update Prev / Next Button text
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
-
-      prevBtn.disabled = (step === 1);
-
-      if(step === 4) {
-        nextBtn.innerHTML = 'Complete & Print Ticket <i class="fa-solid fa-check-double"></i>';
-      } else {
-        nextBtn.innerHTML = 'Next Step <i class="fa-solid fa-arrow-right"></i>';
-      }
-    }
-
-    function navigateStep(direction) {
-      if(direction === 1 && currentStep === 4) {
-        finishAndShowModal();
-        return;
-      }
-      goToStep(currentStep + direction);
-    }
-
-    // Sync PD Range & Number
-    function syncPdValue(val) {
-      document.getElementById('pdSlider').value = val;
-      document.getElementById('pdInput').value = val;
-      document.getElementById('pdDisplay').innerText = val + ' mm';
-      updateLiveSummary();
-    }
-
-    // Lens Selection
-    function selectLensType(type, btnElement) {
-      selectedLensType = type;
-      document.querySelectorAll('.lens-type-btn').forEach(btn => {
-        btn.className = "lens-type-btn p-3 rounded-xl bg-slate-950 border border-slate-800 text-left text-xs font-medium text-slate-300 hover:border-slate-700 transition";
-        if(btn.querySelector('.font-bold')) {
-          btn.querySelector('.font-bold').className = "font-bold text-slate-200";
+        // Handle Login
+        function handleLogin(e) {
+            e.preventDefault();
+            if (!state.isRegistered) {
+                alert("No record found! Please click 'Register New Account' first.");
+                return;
+            }
+            state.isLoggedIn = true;
+            navigateTo('page-doctors');
         }
-      });
 
-      btnElement.className = "lens-type-btn p-3 rounded-xl bg-brand-950/60 border border-brand-500 text-left text-xs font-medium text-white transition";
-      btnElement.querySelector('.font-bold').className = "font-bold text-brand-300";
+        // Handle Doctor Selection
+        function selectDoctor(docName, fee) {
+            state.selectedDoctor = docName;
+            state.fee = fee;
 
-      updateLiveSummary();
-    }
-
-    // Frame Card Selection
-    function selectFrameCard(cardElement, name, finish, price) {
-      document.querySelectorAll('.frame-card').forEach(card => {
-        card.className = "frame-card relative bg-slate-950 border border-slate-800 rounded-2xl p-4 cursor-pointer hover:border-brand-500 transition shadow-lg";
-      });
-
-      cardElement.className = "frame-card relative bg-slate-950 border-2 border-brand-500 rounded-2xl p-4 cursor-pointer hover:scale-[1.02] transition shadow-lg";
-      
-      selectedFrame.name = name;
-      selectedFrame.finish = finish;
-      selectedFrame.price = price;
-
-      document.getElementById('selectedFrameText').innerText = `${name} (${finish})`;
-      updateLiveSummary();
-    }
-
-    function setFrameColor(color) {
-      selectedFrame.color = color;
-      document.getElementById('selectedFrameText').innerText = `${selectedFrame.name} (${selectedFrame.finish} - ${color} Tint)`;
-    }
-
-    // Filter frames by face shape
-    function filterFramesByFaceShape(shape) {
-      const cards = document.querySelectorAll('.frame-card');
-      cards.forEach(card => {
-        const matchShapes = card.getAttribute('data-shape') || '';
-        const badge = card.querySelector('.compatibility-badge');
-
-        if(shape === 'ALL' || matchShapes.includes(shape)) {
-          card.style.display = 'block';
-          if(matchShapes.includes(shape) && shape !== 'ALL') {
-            badge.className = "compatibility-badge absolute top-3 right-3 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
-            badge.innerText = "Ideal Match";
-          } else {
-            badge.className = "compatibility-badge absolute top-3 right-3 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-800 text-slate-400";
-            badge.innerText = "Standard Fit";
-          }
-        } else {
-          card.style.display = 'none';
+            document.getElementById('pay-doc-name').innerText = docName;
+            document.getElementById('pay-amount').innerText = `$${fee.toFixed(2)}`;
+            
+            navigateTo('page-payment');
         }
-      });
-    }
 
-    // Fill Demo Sample Prescription
-    function fillSamplePrescription() {
-      document.getElementById('patientName').value = "Dr. Aamir Khan";
-      document.getElementById('patientAge').value = "34";
-      document.getElementById('patientPhone').value = "+92 3299094857";
-      document.getElementById('patientEmail').value = "ajmalkhanseng@gmail.com";
+        // Handle Payment Verification
+        function processPayment(e) {
+            e.preventDefault();
+            const payBtn = document.getElementById('pay-btn');
+            
+            // UI Loading state
+            payBtn.innerText = "Verifying Transaction with Bank...";
+            payBtn.disabled = true;
 
-      document.getElementById('odSph').value = "-1.25";
-      document.getElementById('odCyl').value = "-0.50";
-      document.getElementById('odAxis').value = "90";
-      document.getElementById('odAdd').value = "+1.50";
+            setTimeout(() => {
+                payBtn.classList.add('hidden');
+                
+                // Show Verification Receipt
+                const receipt = document.getElementById('payment-receipt');
+                document.getElementById('rec-patient').innerText = state.patient.name || "John Doe";
+                document.getElementById('rec-doctor').innerText = state.selectedDoctor;
+                document.getElementById('txn-id').innerText = 'TXN-' + Math.floor(10000000 + Math.random() * 90000000);
+                
+                receipt.classList.remove('hidden');
+            }, 1800);
+        }
 
-      document.getElementById('osSph').value = "-1.50";
-      document.getElementById('osCyl').value = "-0.25";
-      document.getElementById('osAxis').value = "180";
-      document.getElementById('osAdd').value = "+1.50";
+        // Send Inquiry
+        function sendMessage(e) {
+            e.preventDefault();
+            alert("Your inquiry has been sent directly to the clinical team. A doctor will respond shortly.");
+            e.target.reset();
+        }
 
-      syncPdValue(63);
-      updateLiveSummary();
-    }
-
-    // Update Live Summary Box
-    function updateLiveSummary() {
-      const name = document.getElementById('patientName').value || "Guest Patient";
-      const phone = document.getElementById('patientPhone').value || "+92 3XX XXXXXXX";
-      const email = document.getElementById('patientEmail').value || "patient@gmail.com";
-      const branchRadio = document.querySelector('input[name="storeBranch"]:checked');
-      const branch = branchRadio ? branchRadio.value : "Peshawar Central";
-
-      document.getElementById('summaryName').innerText = name;
-      document.getElementById('summaryContact').innerText = `${phone} • ${email}`;
-      document.getElementById('summaryBranch').innerText = branch;
-
-      // Prescription
-      document.getElementById('summaryOdSph').innerText = document.getElementById('odSph').value || "0.00";
-      document.getElementById('summaryOdCyl').innerText = document.getElementById('odCyl').value || "0.00";
-      document.getElementById('summaryOdAxis').innerText = (document.getElementById('odAxis').value || "0") + "°";
-
-      document.getElementById('summaryOsSph').innerText = document.getElementById('osSph').value || "0.00";
-      document.getElementById('summaryOsCyl').innerText = document.getElementById('osCyl').value || "0.00";
-      document.getElementById('summaryOsAxis').innerText = (document.getElementById('osAxis').value || "0") + "°";
-
-      document.getElementById('summaryPd').innerText = "PD: " + (document.getElementById('pdInput').value || "63") + "mm";
-
-      document.getElementById('summaryLensType').innerText = selectedLensType;
-      document.getElementById('summaryFrameName').innerText = selectedFrame.name;
-      document.getElementById('summaryFramePrice').innerText = "$" + selectedFrame.price.toFixed(2);
-      document.getElementById('summaryTotal').innerText = "$" + selectedFrame.price.toFixed(2);
-    }
-
-    // Dispatch Quick Actions
-    function triggerQuickWhatsApp() {
-      const name = document.getElementById('patientName').value || "Patient";
-      const phone = document.getElementById('patientPhone').value || "+923001234567";
-      const msg = encodeURIComponent(`Hello ${name}, your Cambridge Eye System prescription summary:\nFrame: ${selectedFrame.name}\nLens: ${selectedLensType}\nTotal: $${selectedFrame.price}`);
-      window.open(`https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank');
-    }
-
-    function triggerQuickGmail() {
-      const email = document.getElementById('patientEmail').value || "patient@gmail.com";
-      const subject = encodeURIComponent("Cambridge Eye System - Prescription & Receipt");
-      const body = encodeURIComponent(`Dear Patient,\n\nThank you for visiting Cambridge Eye System.\n\nOptical Prescription Details:\n- Frame: ${selectedFrame.name}\n- Lens: ${selectedLensType}\n- PD: ${document.getElementById('pdInput').value}mm\n\nBranch: Peshawar Central`);
-      window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank');
-    }
-
-    // Finish & Show Modal
-    function finishAndShowModal() {
-      const randomId = "CES-2026-" + Math.floor(1000 + Math.random() * 9000);
-      document.getElementById('modalOrderId').innerText = randomId;
-
-      document.getElementById('ticketName').innerText = document.getElementById('patientName').value || "Dr. Aamir Khan";
-      document.getElementById('ticketPhone').innerText = document.getElementById('patientPhone').value || "+92 3299094857";
-      document.getElementById('ticketEmail').innerText = document.getElementById('patientEmail').value || "ajmalkhanseng2006@gmail.com";
-      
-      const branchRadio = document.querySelector('input[name="storeBranch"]:checked');
-      document.getElementById('ticketBranch').innerText = branchRadio ? branchRadio.value : "Peshawar Central";
-      document.getElementById('ticketDate').innerText = new Date().toISOString().split('T')[0];
-      document.getElementById('ticketPd').innerText = (document.getElementById('pdInput').value || "63") + " mm";
-
-      document.getElementById('ticketOdSph').innerText = document.getElementById('odSph').value || "0.00";
-      document.getElementById('ticketOdCyl').innerText = document.getElementById('odCyl').value || "0.00";
-      document.getElementById('ticketOdAxis').innerText = (document.getElementById('odAxis').value || "0") + "°";
-      document.getElementById('ticketOdAdd').innerText = document.getElementById('odAdd').value || "--";
-
-      document.getElementById('ticketOsSph').innerText = document.getElementById('osSph').value || "0.00";
-      document.getElementById('ticketOsCyl').innerText = document.getElementById('osCyl').value || "0.00";
-      document.getElementById('ticketOsAxis').innerText = (document.getElementById('osAxis').value || "0") + "°";
-      document.getElementById('ticketOsAdd').innerText = document.getElementById('osAdd').value || "--";
-
-      document.getElementById('ticketFrame').innerText = selectedFrame.name;
-      document.getElementById('ticketLens').innerText = selectedLensType;
-
-      document.getElementById('confirmationModal').classList.remove('hidden');
-    }
-
-    function closeModal() {
-      document.getElementById('confirmationModal').classList.add('hidden');
-      goToStep(1);
-    }
-
-    function printTicket() {
-      window.print();
-    }
-
-    function sendModalWhatsApp() {
-      triggerQuickWhatsApp();
-    }
-
-    function sendModalGmail() {
-      triggerQuickGmail();
-    }
-  </script>
+        // Logout
+        function logout() {
+            state.isLoggedIn = false;
+            navigateTo('page-login');
+        }
+    </script>
 </body>
 </html>
