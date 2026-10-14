@@ -3,101 +3,494 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cambridge Opticians | Patient & Doctor Portal</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Cambridge Opticians | Digital Portal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+        /* Base Variables & Setup */
         :root {
-            --bg-color: #0f172a;
-            --glass-bg: rgba(255, 255, 255, 0.07);
-            --glass-border: rgba(255, 255, 255, 0.15);
-            --accent: #0ea5e9;
-            --accent-hover: #38bdf8;
+            --bg-dark: #0f172a;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --accent-primary: #38bdf8;
+            --accent-secondary: #818cf8;
             --text-main: #f8fafc;
-            --text-muted: #cbd5e1;
+            --text-muted: #94a3b8;
             --whatsapp: #25D366;
-            --gmail: #EA4335;
+            --gmail: #ea4335;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: var(--bg-color);
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.15), transparent 30%),
-                radial-gradient(circle at 90% 80%, rgba(56, 189, 248, 0.1), transparent 30%);
+            background-color: var(--bg-dark);
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
+            position: relative;
         }
 
-        /* Top Navigation */
+        /* Ambient Background Orbs */
+        .ambient-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            animation: float 20s infinite alternate ease-in-out;
+        }
+        .orb-1 { width: 400px; height: 400px; background: rgba(56, 189, 248, 0.15); top: -100px; left: -100px; }
+        .orb-2 { width: 500px; height: 500px; background: rgba(129, 140, 248, 0.15); bottom: -200px; right: -100px; animation-delay: -5s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Header */
         header {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(10px);
+            padding: 1.5rem 2rem;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--glass-border);
-            padding: 1rem 2rem;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
             position: sticky;
             top: 0;
             z-index: 100;
         }
 
-        .logo { font-size: 1.8rem; font-weight: 800; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+        
+        .brand i { color: var(--accent-primary); }
 
-        nav { display: flex; gap: 1.5rem; flex-wrap: wrap; }
-
-        .nav-link {
-            color: var(--text-main); text-decoration: none; font-weight: 500;
-            cursor: pointer; padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.3s;
+        /* Main Container */
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        .nav-link:hover, .nav-link.active { background: var(--glass-bg); color: var(--accent); }
-
-        .nav-link.doctor-btn {
-            background: rgba(234, 67, 53, 0.1); color: #fca5a5; border: 1px solid rgba(234, 67, 53, 0.3);
+        /* View Management */
+        .view-section {
+            width: 100%;
+            max-width: 600px;
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
         }
 
-        /* Page Container */
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; flex-grow: 1; width: 100%; }
-
-        .page-section { display: none; animation: slideUp 0.5s ease-out forwards; }
-        .page-section.active { display: block; }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .view-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        /* Glassmorphism Elements */
-        .glass-panel {
-            background: var(--glass-bg); backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border); border-radius: 20px;
-            padding: 2.5rem; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); margin-bottom: 2rem;
+        /* Dashboard specific layout */
+        #dashboard-view.active {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            max-width: 1000px;
         }
 
-        h2 { font-size: 2rem; margin-bottom: 1.5rem; color: var(--accent); }
-
-        /* Forms */
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-        .form-group { display: flex; flex-direction: column; gap: 8px; }
-        .form-group label { font-size: 0.95rem; color: var(--text-muted); font-weight: 500; }
-
-        input[type="text"], input[type="tel"], input[type="number"], select, textarea {
-            background: rgba(0, 0, 0, 0.25); border: 1px solid var(--glass-border);
-            color: white; padding: 14px; border-radius: 12px; font-size: 1rem;
-            transition: all 0.3s; outline: none; font-family: inherit;
+        @media (min-width: 768px) {
+            #dashboard-view.active {
+                grid-template-columns: 1fr 1fr;
+            }
         }
-        input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(14, 165, 233, 0.3); }
 
-        /* Buttons */
-        .btn {
-            border: none; padding: 15px 30px; color: white; font-size: 1.1rem;
-            border-radius: 30px; cursor: pointer; font-weight: 600; transition: all 0.3s;
-            display: inline-flex; align-items: center; gap: 10px; justify-content: center;
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: var(--glass-shadow);
+            position: relative;
+            overflow: hidden;
         }
-        .btn-primary { background: linear-gradient(45deg, #
+
+        /* 3D Hover Effect */
+        .hover-3d {
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+            transform: perspective(1000px) rotateX(0) rotateY(0) scale(1);
+        }
+
+        .hover-3d:hover {
+            transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Typography */
+        h1, h2, h3 { color: var(--text-main); margin-bottom: 0.5rem; }
+        p { color: var(--text-muted); line-height: 1.6; margin-bottom: 1.5rem; }
+        
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        option {
+            background: var(--bg-dark);
+            color: var(--text-main);
+        }
+
+        /* Primary Button */
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 1rem;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(56, 189, 248, 0.4);
+        }
+
+        /* Dashboard Data Rows */
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .data-row:last-child { border-bottom: none; }
+        .data-label { color: var(--text-muted); font-size: 0.9rem; }
+        .data-value { font-weight: 600; color: var(--text-main); text-align: right; }
+
+        /* Doctor Profile */
+        .doctor-profile {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .doctor-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--glass-border), rgba(255,255,255,0));
+            margin: 0 auto 1rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: var(--accent-primary);
+            border: 2px solid rgba(255,255,255,0.1);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+        }
+
+        /* Liquid Animated Buttons */
+        .liquid-btn {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            overflow: hidden;
+            z-index: 1;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .liquid-btn:hover {
+            transform: scale(1.03);
+        }
+
+        /* The liquid background animation */
+        .liquid-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 300%; height: 300%;
+            background: inherit;
+            border-radius: 40%;
+            z-index: -1;
+            transition: all 0.6s ease;
+        }
+
+        .liquid-btn:hover::before {
+            animation: spin 3s linear infinite;
+            top: -100%;
+        }
+
+        .btn-wa {
+            background-color: var(--whatsapp);
+            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.3);
+        }
+        
+        .btn-gmail {
+            background-color: var(--gmail);
+            box-shadow: 0 8px 25px rgba(234, 67, 53, 0.3);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Background Elements -->
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+
+    <!-- Navigation Header -->
+    <header>
+        <a href="#" class="brand">
+            <i class="fa-solid fa-glasses"></i> Cambridge Opticians
+        </a>
+        <div style="font-size: 0.9rem; color: var(--text-muted);">
+            <i class="fa-solid fa-shield-halved"></i> Secure Portal
+        </div>
+    </header>
+
+    <main>
+        <!-- 1. Patient Registration View -->
+        <section id="registration-view" class="view-section active">
+            <div class="glass-card hover-3d">
+                <h2>Patient Registration</h2>
+                <p>Register your details to create your digital eye health profile and connect with our specialists.</p>
+                
+                <form id="regForm">
+                    <div class="form-group">
+                        <label for="pName"><i class="fa-regular fa-user"></i> Full Name</label>
+                        <input type="text" id="pName" required placeholder="e.g., John Doe" autocomplete="off">
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="pAge"><i class="fa-solid fa-cake-candles"></i> Age</label>
+                            <input type="number" id="pAge" required placeholder="Years" min="1" max="120">
+                        </div>
+                        <div class="form-group">
+                            <label for="pPhone"><i class="fa-solid fa-phone"></i> Phone Number</label>
+                            <input type="tel" id="pPhone" required placeholder="e.g., 03XXXXXXXXX">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pCondition"><i class="fa-regular fa-eye"></i> Primary Eye Condition</label>
+                        <select id="pCondition" required>
+                            <option value="" disabled selected>Select your condition...</option>
+                            <option value="Myopia (Nearsightedness)">Myopia (Nearsightedness)</option>
+                            <option value="Hyperopia (Farsightedness)">Hyperopia (Farsightedness)</option>
+                            <option value="Astigmatism">Astigmatism</option>
+                            <option value="Presbyopia (Aging Eyes)">Presbyopia (Aging Eyes)</option>
+                            <option value="Routine Checkup / General">Routine Checkup / General</option>
+                            <option value="Other / Unsure">Other / Unsure</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Complete Registration <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i></button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 2. Patient Dashboard View -->
+        <section id="dashboard-view" class="view-section">
+            
+            <!-- Patient Details Card -->
+            <div class="glass-card hover-3d">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+                    <div>
+                        <h2 style="font-size: 1.5rem;">Patient Profile</h2>
+                        <p style="margin-bottom: 0;">Your registered details.</p>
+                    </div>
+                    <span style="background: rgba(56, 189, 248, 0.1); color: var(--accent-primary); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(56, 189, 248, 0.3);">
+                        <i class="fa-solid fa-check"></i> Registered
+                    </span>
+                </div>
+
+                <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 1rem 1.5rem;">
+                    <div class="data-row">
+                        <span class="data-label">Name</span>
+                        <span class="data-value" id="dashName">--</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Age</span>
+                        <span class="data-value" id="dashAge">--</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Contact</span>
+                        <span class="data-value" id="dashPhone">--</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Diagnosis</span>
+                        <span class="data-value" id="dashCondition">--</span>
+                    </div>
+                </div>
+                
+                <button onclick="editDetails()" style="background: transparent; border: 1px solid var(--glass-border); color: var(--text-main); padding: 0.8rem; width: 100%; border-radius: 12px; margin-top: 1.5rem; cursor: pointer; transition: 0.3s;">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit Details
+                </button>
+            </div>
+
+            <!-- Doctor Contact Card -->
+            <div class="glass-card hover-3d">
+                <div class="doctor-profile">
+                    <div class="doctor-avatar">
+                        <i class="fa-solid fa-user-doctor"></i>
+                    </div>
+                    <h3>Dr. Ajmal Khan</h3>
+                    <p style="font-size: 0.9rem;">Senior Optometrist</p>
+                </div>
+
+                <p style="text-align: center; font-size: 0.9rem; margin-bottom: 1.5rem;">Your profile is ready. Please contact Dr. Ajmal to forward your digital record and start your consultation.</p>
+
+                <!-- Liquid WhatsApp Button -->
+                <a href="#" id="waLink" class="liquid-btn btn-wa" target="_blank">
+                    <i class="fa-brands fa-whatsapp fa-lg"></i> Consult via WhatsApp
+                </a>
+
+                <!-- Liquid Gmail Button -->
+                <a href="#" id="emailLink" class="liquid-btn btn-gmail" target="_blank">
+                    <i class="fa-solid fa-envelope fa-lg"></i> Send Record via Gmail
+                </a>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        // DOM Elements
+        const regForm = document.getElementById('regForm');
+        const regView = document.getElementById('registration-view');
+        const dashView = document.getElementById('dashboard-view');
+        
+        // Data Display Elements
+        const dashName = document.getElementById('dashName');
+        const dashAge = document.getElementById('dashAge');
+        const dashPhone = document.getElementById('dashPhone');
+        const dashCondition = document.getElementById('dashCondition');
+        
+        // Contact Links
+        const waLink = document.getElementById('waLink');
+        const emailLink = document.getElementById('emailLink');
+
+        // State Transition function
+        function switchView(showView, hideView) {
+            hideView.classList.remove('active');
+            setTimeout(() => {
+                showView.classList.add('active');
+            }, 50); // slight delay allows CSS display block to take effect before opacity animates
+        }
+
+        // Handle Registration
+        regForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // 1. Capture Data
+            const patientData = {
+                name: document.getElementById('pName').value,
+                age: document.getElementById('pAge').value,
+                phone: document.getElementById('pPhone').value,
+                condition: document.getElementById('pCondition').value
+            };
+
+            // 2. Populate Dashboard UI
+            dashName.textContent = patientData.name;
+            dashAge.textContent = `${patientData.age} Years`;
+            dashPhone.textContent = patientData.phone;
+            dashCondition.textContent = patientData.condition;
+
+            // 3. Format dynamic contact messages
+            const doctorWhatsApp = '923324894896'; // formatted for wa.me API
+            const doctorEmail = 'seng0125@gmail.com';
+            
+            const messageBody = `*Cambridge Opticians - New Patient Record*%0A%0A` +
+                                `*Name:* ${patientData.name}%0A` +
+                                `*Age:* ${patientData.age}%0A` +
+                                `*Contact:* ${patientData.phone}%0A` +
+                                `*Condition:* ${patientData.condition}%0A%0A` +
+                                `Hello Dr. Ajmal, I have registered via the portal and would like to start my consultation.`;
+
+            // Clean message for Email (replace WhatsApp bold asterisks and adjust line breaks)
+            const emailSubject = `Patient Consultation Request: ${patientData.name}`;
+            const emailBodyText = decodeURIComponent(messageBody).replace(/\*/g, '').replace(/%0A/g, '%0D%0A');
+
+            // 4. Update HREFs
+            waLink.href = `https://wa.me/${doctorWhatsApp}?text=${messageBody}`;
+            emailLink.href = `mailto:${doctorEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBodyText)}`;
+
+            // 5. Transition to Dashboard
+            switchView(dashView, regView);
+        });
+
+        // Edit function to return to form
+        function editDetails() {
+            switchView(regView, dashView);
+        }
+    </script>
+</body>
+</html>
