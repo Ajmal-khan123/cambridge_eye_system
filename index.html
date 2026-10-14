@@ -3,454 +3,854 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cambridge Opticians | Digital Clinic</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>OphthaCare - Eye Health, Consultation & Previous Reports Portal</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <style>
-        :root {
-            --bg-color: #0f172a;
-            --glass-bg: rgba(255, 255, 255, 0.07);
-            --glass-border: rgba(255, 255, 255, 0.15);
-            --accent: #0ea5e9;
-            --accent-hover: #38bdf8;
-            --text-main: #f8fafc;
-            --text-muted: #cbd5e1;
-            --price: #10b981;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: var(--bg-color);
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.15), transparent 30%),
-                radial-gradient(circle at 90% 80%, rgba(56, 189, 248, 0.1), transparent 30%);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-        }
-
-        /* Navigation */
-        header {
-            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--glass-border); padding: 1rem 2rem;
-            display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 100;
-        }
-
-        .logo { font-size: 1.8rem; font-weight: 800; color: var(--accent); display: flex; align-items: center; gap: 10px; }
-        nav { display: flex; gap: 1.5rem; flex-wrap: wrap; }
-        .nav-link {
-            color: var(--text-main); text-decoration: none; font-weight: 500;
-            cursor: pointer; padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.3s;
-        }
-        .nav-link:hover, .nav-link.active { background: var(--glass-bg); color: var(--accent); }
-        .nav-link.doctor-btn { background: rgba(234, 67, 53, 0.1); color: #fca5a5; border: 1px solid rgba(234, 67, 53, 0.3); }
-
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; flex-grow: 1; width: 100%; }
-        .page-section { display: none; animation: slideUp 0.5s ease-out forwards; }
+        .page-section { display: none; }
         .page-section.active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Glassmorphism */
-        .glass-panel {
-            background: var(--glass-bg); backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border); border-radius: 20px;
-            padding: 2.5rem; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); margin-bottom: 2rem;
-        }
-        h2 { font-size: 2rem; margin-bottom: 1.5rem; color: var(--accent); }
-
-        /* Forms */
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-        .form-group { display: flex; flex-direction: column; gap: 8px; }
-        .form-group label { font-size: 0.95rem; color: var(--text-muted); font-weight: 500; }
-        input[type="text"], input[type="tel"], input[type="number"], select, textarea {
-            background: rgba(0, 0, 0, 0.25); border: 1px solid var(--glass-border);
-            color: white; padding: 14px; border-radius: 12px; font-size: 1rem;
-            transition: all 0.3s; outline: none; font-family: inherit;
-        }
-        input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(14, 165, 233, 0.3); }
-
-        /* Buttons */
-        .btn {
-            border: none; padding: 15px 30px; color: white; font-size: 1.1rem;
-            border-radius: 30px; cursor: pointer; font-weight: 600; transition: all 0.3s;
-            display: inline-flex; align-items: center; gap: 10px; justify-content: center; text-align: center;
-        }
-        .btn-primary { background: linear-gradient(45deg, #0284c7, #0ea5e9); }
-        .btn-success { background: linear-gradient(45deg, #059669, #10b981); }
-        .btn-edit { background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); }
-        .btn-whatsapp { background: linear-gradient(45deg, #128C7E, #25D366); }
-        .btn-gmail { background: linear-gradient(45deg, #C71610, #EA4335); }
-        .btn:hover { transform: scale(1.05) translateY(-2px); filter: brightness(1.1); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-        .btn-small { padding: 10px 20px; font-size: 0.95rem; border-radius: 20px; }
-
-        /* Data Displays */
-        .data-card { background: rgba(0,0,0,0.3); border-radius: 15px; padding: 2rem; border: 1px solid var(--glass-border); margin-bottom: 1.5rem; }
-        .data-row { display: flex; justify-content: space-between; padding: 0.8rem 0; border-bottom: 1px dashed var(--glass-border); }
-        .data-row:last-child { border-bottom: none; }
-        .data-label { color: var(--text-muted); font-size: 0.95rem; }
-        .data-value { font-weight: 600; color: var(--text-main); text-align: right; max-width: 65%; }
-
-        /* Detailed Product Catalog Grid */
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; }
-        .product-card {
-            background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; 
-            padding: 1.5rem; transition: 0.4s; position: relative; overflow: hidden;
-            display: flex; flex-direction: column;
-        }
-        .product-card:hover { border-color: var(--accent); transform: translateY(-10px); box-shadow: 0 15px 30px rgba(14, 165, 233, 0.2); }
-        .product-img { width: 100%; height: 200px; object-fit: cover; border-radius: 15px; margin-bottom: 1.2rem; }
-        
-        .product-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
-        .product-title { font-size: 1.25rem; font-weight: 700; color: white; margin-bottom: 4px; }
-        .product-price { background: rgba(16, 185, 129, 0.2); color: var(--price); padding: 5px 12px; border-radius: 20px; font-weight: bold; border: 1px solid rgba(16, 185, 129, 0.4); font-size: 0.95rem; }
-        
-        .product-details-list { list-style: none; margin-bottom: 1.5rem; flex-grow: 1; }
-        .product-details-list li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
-        .product-details-list li span:first-child { color: var(--text-muted); }
-        .product-details-list li span:last-child { font-weight: 600; color: var(--text-main); text-align: right; }
-        
-        .quality-badge { position: absolute; top: 1.5rem; left: 1.5rem; background: linear-gradient(45deg, #f59e0b, #fbbf24); color: #000; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--glass-border); }
-        th { color: var(--accent); background: rgba(0,0,0,0.2); }
-
     </style>
 </head>
-<body>
+<body class="bg-slate-50 font-sans text-slate-800 min-h-screen flex flex-col">
 
-    <header>
-        <div class="logo"><i class="fa-solid fa-glasses"></i> Cambridge</div>
-        <nav>
-            <a class="nav-link active" onclick="navigate('home')">Home</a>
-            <a class="nav-link" onclick="navigate('registration')">Registration</a>
-            <a class="nav-link" id="nav-dashboard" style="display:none;" onclick="navigate('dashboard')">Dashboard</a>
-            <a class="nav-link doctor-btn" onclick="doctorLogin()">Doctor Portal</a>
-        </nav>
-    </header>
+    <!-- Global Navigation Bar -->
+    <nav class="bg-teal-700 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateTo('page-login')">
+                <i class="fa-solid fa-eye text-2xl text-teal-300"></i>
+                <span class="text-xl font-bold tracking-wide">OphthaCare Portal</span>
+            </div>
+            <div id="nav-links" class="hidden md:flex space-x-5 font-medium items-center text-sm">
+                <button onclick="navigateTo('page-doctors')" class="hover:text-teal-200 transition">Contact Doctors</button>
+                <button onclick="navigateTo('page-reports')" class="hover:text-teal-200 transition font-bold underline decoration-teal-300 underline-offset-4">Previous Reports</button>
+                <button onclick="navigateTo('page-payment')" class="hover:text-teal-200 transition">Pay Consultation</button>
+                <span id="nav-user-display" class="bg-teal-800 px-3 py-1 rounded-full text-teal-200 font-semibold text-xs"></span>
+                <button onclick="logout()" class="bg-teal-900 px-3 py-1 rounded-lg hover:bg-black transition text-xs">Logout</button>
+            </div>
+        </div>
+    </nav>
 
-    <div class="container">
-        
-        <!-- Home -->
-        <section id="home" class="page-section active">
-            <div class="glass-panel" style="text-align: center; padding: 4rem 2rem;">
-                <h1 style="font-size: 3rem; margin-bottom: 1rem;">Clarity for Every Vision</h1>
-                <p style="color: var(--text-muted); font-size: 1.2rem; max-width: 600px; margin: 0 auto 2rem auto;">
-                    Register your condition, browse our premium eyewear, and start an open consultation directly with Dr. Ajmal Khan.
-                </p>
-                <button class="btn btn-primary" onclick="navigate('registration')">Start Patient Registration</button>
+    <!-- Main Container -->
+    <main class="flex-grow max-w-5xl mx-auto w-full p-4 sm:p-6">
+
+        <!-- PAGE 1: LOGIN -->
+        <section id="page-login" class="page-section active">
+            <div class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl border border-slate-100 mt-10">
+                <div class="text-center mb-6">
+                    <div class="bg-teal-100 text-teal-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-user-lock text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-900">Patient Login</h2>
+                    <p class="text-slate-500 text-sm">Access your eye health records, past reports, and consult doctors</p>
+                </div>
+                <form onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold mb-1 text-slate-700">Email or Patient ID</label>
+                        <input type="email" id="login-email" required placeholder="patient@example.com" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-1 text-slate-700">Password</label>
+                        <input type="password" required placeholder="••••••••" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                    </div>
+                    <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-lg shadow-md transition">Log In</button>
+                </form>
+                <div class="mt-6 text-center border-t pt-4 text-sm text-slate-600">
+                    Don't have an account? 
+                    <button onclick="navigateTo('page-register')" class="text-teal-600 font-bold hover:underline">Register New Account</button>
+                </div>
             </div>
         </section>
 
-        <!-- Registration Form -->
-        <section id="registration" class="page-section">
-            <div class="glass-panel">
-                <h2>Patient Registration</h2>
-                <form onsubmit="event.preventDefault(); preparePreview();">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Patient Full Name</label>
-                            <input type="text" id="patName" required placeholder="Enter your name">
+        <!-- PAGE 2: REGISTRATION & EYE HEALTH INTAKE WITH REPORT UPLOAD -->
+        <section id="page-register" class="page-section">
+            <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
+                <div class="border-b pb-4 mb-6">
+                    <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-list text-teal-600"></i> Patient Registration & Eye Profile
+                    </h2>
+                    <p class="text-slate-500 text-sm">Please provide complete health details and upload past reports to assist our ophthalmologists.</p>
+                </div>
+
+                <form onsubmit="handleRegistration(event)" class="space-y-6">
+                    <!-- Basic Information -->
+                    <div>
+                        <h3 class="text-md font-bold text-teal-700 uppercase tracking-wider mb-3">1. General Patient Profile</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Full Name *</label>
+                                <input type="text" id="reg-name" required placeholder="John Doe" class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Email (For Login) *</label>
+                                <input type="email" id="reg-email" required placeholder="john@example.com" class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Age *</label>
+                                <input type="number" id="reg-age" min="1" max="120" required placeholder="45" class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>Age</label>
-                            <input type="number" id="patAge" required placeholder="Years">
-                        </div>
-                        <div class="form-group">
-                            <label>Phone / WhatsApp Number</label>
-                            <input type="tel" id="patPhone" required placeholder="e.g., 03XXXXXXXXX">
-                        </div>
-                        <div class="form-group">
-                            <label>Primary Eye Condition (If known)</label>
-                            <select id="patCondition">
-                                <option value="Unsure / Need Diagnosis">Unsure / Need Diagnosis</option>
-                                <option value="Myopia (Nearsightedness)">Myopia (Nearsightedness)</option>
-                                <option value="Astigmatism">Astigmatism</option>
-                                <option value="Cataract">Cataract</option>
-                            </select>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Gender *</label>
+                                <select id="reg-gender" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                                    <option value="">Select Gender</option>
+                                    <option>Male</option>
+                                    <option>Female</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Password *</label>
+                                <input type="password" id="reg-pass" required placeholder="••••••••" class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                            </div>
                         </div>
                     </div>
-                    <div style="margin-top: 2rem;">
-                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-file-lines"></i> Preview Details</button>
+
+                    <!-- Specific Eye Characteristics -->
+                    <div>
+                        <h3 class="text-md font-bold text-teal-700 uppercase tracking-wider mb-3">2. Ocular & Iris Profile</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Iris Color / Particular Traits *</label>
+                                <select id="reg-iris" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                                    <option value="">Select Iris Color</option>
+                                    <option>Brown</option>
+                                    <option>Blue</option>
+                                    <option>Green</option>
+                                    <option>Hazel</option>
+                                    <option>Heterochromia (Different Colors)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Current Vision Corrective Wear</label>
+                                <select id="reg-wear" class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                                    <option>None</option>
+                                    <option>Eyeglasses (Distance)</option>
+                                    <option>Eyeglasses (Reading)</option>
+                                    <option>Contact Lenses</option>
+                                    <option>Bifocals / Multifocals</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Systemic Diseases Impacting Eye Health -->
+                    <div>
+                        <h3 class="text-md font-bold text-teal-700 uppercase tracking-wider mb-2">3. Medical History Impacting Eyes</h3>
+                        <p class="text-xs text-slate-500 mb-3">Check all medical conditions you currently have or have been treated for:</p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <label class="flex items-center space-x-2 bg-slate-50 p-2.5 rounded-lg border hover:bg-slate-100 cursor-pointer">
+                                <input type="checkbox" name="disease" value="Diabetes" class="w-4 h-4 text-teal-600 rounded">
+                                <span class="text-xs font-semibold">Diabetes (Risk of Retinopathy)</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-slate-50 p-2.5 rounded-lg border hover:bg-slate-100 cursor-pointer">
+                                <input type="checkbox" name="disease" value="Hypertension" class="w-4 h-4 text-teal-600 rounded">
+                                <span class="text-xs font-semibold">Hypertension (High BP)</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-slate-50 p-2.5 rounded-lg border hover:bg-slate-100 cursor-pointer">
+                                <input type="checkbox" name="disease" value="Thyroid Disease" class="w-4 h-4 text-teal-600 rounded">
+                                <span class="text-xs font-semibold">Thyroid Disorders (Graves')</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-slate-50 p-2.5 rounded-lg border hover:bg-slate-100 cursor-pointer">
+                                <input type="checkbox" name="disease" value="Rheumatoid Arthritis" class="w-4 h-4 text-teal-600 rounded">
+                                <span class="text-xs font-semibold">Autoimmune / Arthritis</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-slate-50 p-2.5 rounded-lg border hover:bg-slate-100 cursor-pointer">
+                                <input type="checkbox" name="disease" value="Glaucoma History" class="w-4 h-4 text-teal-600 rounded">
+                                <span class="text-xs font-semibold">Family History of Glaucoma</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-slate-50 p-2.5 rounded-lg border hover:bg-slate-100 cursor-pointer">
+                                <input type="checkbox" name="disease" value="Cataracts" class="w-4 h-4 text-teal-600 rounded">
+                                <span class="text-xs font-semibold">Previous Cataract Surgery</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Upload Previous Medical Reports Section during Registration -->
+                    <div class="bg-teal-50/50 p-5 rounded-xl border border-teal-100">
+                        <h3 class="text-md font-bold text-teal-700 uppercase tracking-wider mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-file-medical text-teal-600"></i> 4. Upload Previous Medical Reports & Scans
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-4">Attach any past prescriptions, retinal scans, visual field tests, or eye test reports (PDF, JPG, PNG accepted).</p>
+                        
+                        <div class="flex flex-col sm:flex-row gap-3 items-center">
+                            <input type="file" id="report-file-input" accept=".pdf, .jpg, .jpeg, .png" class="w-full sm:w-auto text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-600 file:text-white hover:file:bg-teal-700 cursor-pointer">
+                            <button type="button" onclick="addReportFile()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-semibold transition">
+                                <i class="fa-solid fa-plus mr-1"></i> Add Report
+                            </button>
+                        </div>
+
+                        <!-- Uploaded Files Preview List -->
+                        <div id="uploaded-files-container" class="mt-4 space-y-2 hidden">
+                            <p class="text-xs font-bold text-slate-700">Attached Reports Preview:</p>
+                            <div id="files-list" class="space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Symptoms -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Current Ocular Symptoms / Notes</label>
+                        <textarea id="reg-notes" rows="3" placeholder="Describe symptoms like dryness, blurry vision, floaters, light sensitivity..." class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500 text-sm"></textarea>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4 border-t">
+                        <button type="button" onclick="navigateTo('page-login')" class="text-slate-600 font-semibold hover:underline text-sm">Back to Login</button>
+                        <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-8 py-3 rounded-lg shadow-lg transition">Complete Registration</button>
                     </div>
                 </form>
             </div>
         </section>
 
-        <!-- Preview & Payment Section -->
-        <section id="preview" class="page-section">
-            <div class="glass-panel">
-                <h2>Registration Preview</h2>
-                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Review your details before completing registration to unlock the digital dashboard.</p>
-                
-                <div class="data-card" id="previewDataArea"></div>
-
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <button class="btn btn-edit" onclick="navigate('registration')"><i class="fa-solid fa-pen"></i> Edit</button>
-                    <div style="flex-grow: 1;"></div>
-                    <button class="btn btn-success" onclick="processPayment()"><i class="fa-solid fa-check"></i> Complete Registration</button>
+        <!-- PAGE 3: DEDICATED PREVIOUS REPORTS & HISTORY PAGE -->
+        <section id="page-reports" class="page-section">
+            <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-folder-open text-teal-600"></i> Patient Historical Reports & Eye Scans
+                    </h2>
+                    <p class="text-slate-500 text-sm">View, manage, and upload new OCT scans, visual field tests, and prescriptions.</p>
                 </div>
-            </div>
-        </section>
-
-        <!-- Patient Dashboard -->
-        <section id="dashboard" class="page-section">
-            <div class="glass-panel">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-                    <h2>Welcome, <span id="dashName" style="color:white;"></span></h2>
-                    <span style="background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 5px 15px; border-radius: 20px; border: 1px solid #10b981;">
-                        <i class="fa-solid fa-check-circle"></i> Registered Profile
-                    </span>
-                </div>
-                
-                <div class="data-card" id="dashDataArea"></div>
-
-                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">What would you like to do next?</p>
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <button class="btn btn-edit" onclick="navigate('detailed-catalog')">
-                        <i class="fa-solid fa-glasses"></i> Browse Eyewear Catalog
+                <div class="flex gap-2">
+                    <button onclick="openUploadModal()" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-4 py-2 rounded-lg text-xs flex items-center gap-2 shadow-md transition">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Upload New Report
                     </button>
-                    <button class="btn btn-primary" onclick="navigate('consultation-room')">
-                        <i class="fa-solid fa-user-doctor"></i> Start Doctor Consultation
+                    <button onclick="navigateTo('page-doctors')" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold px-4 py-2 rounded-lg text-xs transition">
+                        Consult Doctors
                     </button>
                 </div>
             </div>
-        </section>
 
-        <!-- Detailed Product Catalog Section -->
-        <section id="detailed-catalog" class="page-section">
-            <div class="glass-panel">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                    <h2>Premium Eyewear Collection</h2>
-                    <button class="btn btn-edit btn-small" onclick="navigate('dashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
+            <!-- Reports Filter / Stats Bar -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <div class="bg-white p-4 rounded-xl border shadow-sm flex items-center space-x-3">
+                    <div class="bg-teal-100 text-teal-700 w-10 h-10 rounded-lg flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-file-medical"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-bold uppercase">Total Reports</p>
+                        <p id="stat-total-reports" class="text-xl font-bold text-slate-900">0</p>
+                    </div>
                 </div>
-                <p style="color: var(--text-muted); margin-bottom: 2rem;">Select a frame design to attach to your patient record. The doctor will review your choice along with your symptoms.</p>
-                
-                <div class="product-grid">
-                    
-                    <!-- Eyeglasses 1 -->
-                    <div class="product-card">
-                        <span class="quality-badge">Premium Grade</span>
-                        <img src="https://images.unsplash.com/photo-1589785868846-95fdb404fa9d?auto=format&fit=crop&w=600&q=80" alt="Titanium Rimless" class="product-img">
-                        <div class="product-header">
-                            <div>
-                                <h3 class="product-title">Titanium Rimless Pro</h3>
-                                <p style="font-size: 0.85rem; color: var(--accent);">Optical Eyeglasses</p>
-                            </div>
-                            <span class="product-price">Rs. 4,500</span>
-                        </div>
-                        <ul class="product-details-list">
-                            <li><span>Feature</span> <span>Ultra-Light, Anti-Blue Light</span></li>
-                            <li><span>Size</span> <span>Medium (52-18-140)</span></li>
-                            <li><span>Quality Focus</span> <span>Aerospace Titanium</span></li>
-                        </ul>
-                        <button class="btn btn-edit" style="width: 100%;" onclick="selectFrame('Titanium Rimless Pro', '4,500')">Select For Prescription</button>
+                <div class="bg-white p-4 rounded-xl border shadow-sm flex items-center space-x-3">
+                    <div class="bg-blue-100 text-blue-700 w-10 h-10 rounded-lg flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-calendar-check"></i>
                     </div>
-
-                    <!-- Eyeglasses 2 -->
-                    <div class="product-card">
-                        <span class="quality-badge">Durable</span>
-                        <img src="https://images.unsplash.com/photo-1577803645773-f96470509666?auto=format&fit=crop&w=600&q=80" alt="Acetate Wayfarer" class="product-img">
-                        <div class="product-header">
-                            <div>
-                                <h3 class="product-title">Classic Wayfarer</h3>
-                                <p style="font-size: 0.85rem; color: var(--accent);">Optical Eyeglasses</p>
-                            </div>
-                            <span class="product-price">Rs. 3,200</span>
-                        </div>
-                        <ul class="product-details-list">
-                            <li><span>Feature</span> <span>Thick edges (hides thick lenses)</span></li>
-                            <li><span>Size</span> <span>Large (54-18-145)</span></li>
-                            <li><span>Quality Focus</span> <span>Hand-polished Acetate</span></li>
-                        </ul>
-                        <button class="btn btn-edit" style="width: 100%;" onclick="selectFrame('Classic Wayfarer', '3,200')">Select For Prescription</button>
+                    <div>
+                        <p class="text-xs text-slate-500 font-bold uppercase">Latest Upload</p>
+                        <p id="stat-latest-date" class="text-sm font-bold text-slate-900">None</p>
                     </div>
-
-                    <!-- Sunglasses 1 -->
-                    <div class="product-card">
-                        <span class="quality-badge">UV Certified</span>
-                        <img src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=600&q=80" alt="Aviator Sunglasses" class="product-img">
-                        <div class="product-header">
-                            <div>
-                                <h3 class="product-title">Aviator Elite Sun</h3>
-                                <p style="font-size: 0.85rem; color: #f59e0b;">Prescription Sunglasses</p>
-                            </div>
-                            <span class="product-price">Rs. 5,100</span>
-                        </div>
-                        <ul class="product-details-list">
-                            <li><span>Feature</span> <span>Polarized, 100% UV400</span></li>
-                            <li><span>Size</span> <span>Large (58-14-135)</span></li>
-                            <li><span>Quality Focus</span> <span>Anti-Corrosion Alloy</span></li>
-                        </ul>
-                        <button class="btn btn-edit" style="width: 100%;" onclick="selectFrame('Aviator Elite Sun', '5,100')">Select For Prescription</button>
+                </div>
+                <div class="bg-white p-4 rounded-xl border shadow-sm flex items-center space-x-3">
+                    <div class="bg-emerald-100 text-emerald-700 w-10 h-10 rounded-lg flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-user-doctor"></i>
                     </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-bold uppercase">Linked Patient</p>
+                        <p id="stat-patient-name" class="text-sm font-bold text-slate-900">-</p>
+                    </div>
+                </div>
+            </div>
 
+            <!-- Reports Table / Grid -->
+            <div class="bg-white rounded-xl shadow-md border overflow-hidden">
+                <div class="p-4 border-b bg-slate-50 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-800 text-sm">Archived Eye Test Records & Doctor Notes</h3>
+                    <div class="text-xs text-slate-500">Showing all records stored in profile</div>
+                </div>
+                <div id="reports-table-container" class="divide-y divide-slate-100">
+                    <!-- Populated dynamically via JS -->
                 </div>
             </div>
         </section>
 
-        <!-- Open Consultation Room -->
-        <section id="consultation-room" class="page-section">
-            <div class="glass-panel">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                    <h2>Open Consultation Room</h2>
-                    <button class="btn btn-edit btn-small" onclick="navigate('dashboard')"><i class="fa-solid fa-arrow-left"></i> Dashboard</button>
+        <!-- PAGE 4: CONTACT DOCTORS & APPOINTMENT BOOKING -->
+        <section id="page-doctors" class="page-section">
+            <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Consult Ophthalmic Specialists</h2>
+                    <p class="text-slate-500 text-sm">Select a doctor to start consultation or schedule an eye exam.</p>
                 </div>
-                <p style="color: var(--text-muted); margin-bottom: 2rem;">Please describe your issues. Dr. Ajmal Khan will review this to diagnose the root cause.</p>
-                
-                <form onsubmit="event.preventDefault(); finishConsultation();">
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label>1. In your own words, what is the main problem?</label>
-                        <textarea id="qProblem" rows="3" required placeholder="E.g., Severe headaches and blurry vision..."></textarea>
+                <div class="flex items-center gap-2">
+                    <button onclick="navigateTo('page-reports')" class="bg-teal-50 text-teal-700 border border-teal-200 text-xs px-3.5 py-2 rounded-xl font-semibold hover:bg-teal-100 transition">
+                        <i class="fa-solid fa-folder-open mr-1"></i> View Past Reports
+                    </button>
+                    <div class="bg-teal-100 text-teal-800 text-xs px-3.5 py-2 rounded-xl font-semibold flex items-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-user-check text-teal-600"></i>
+                        <span id="patient-badge">Patient Active</span>
                     </div>
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label>2. Why did you decide to visit the doctor today?</label>
-                        <textarea id="qReason" rows="3" required placeholder="E.g., The pain was unbearable today..."></textarea>
+                </div>
+            </div>
+
+            <!-- Patient Profile & Attached Reports Summary Box -->
+            <div class="bg-white p-6 rounded-2xl shadow-md border mb-8 border-slate-200">
+                <h3 class="text-md font-bold text-slate-900 mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-id-card text-teal-600"></i> Patient Health Summary & Attached History
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-700 bg-slate-50 p-4 rounded-xl border">
+                    <div>
+                        <p><strong>Name:</strong> <span id="summary-name" class="font-semibold">-</span></p>
+                        <p><strong>Age / Gender:</strong> <span id="summary-age-gender" class="font-semibold">-</span></p>
+                        <p><strong>Iris Color:</strong> <span id="summary-iris" class="font-semibold">-</span></p>
                     </div>
-                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-file-medical"></i> Generate Final Report</button>
+                    <div>
+                        <p><strong>Corrective Wear:</strong> <span id="summary-wear" class="font-semibold">-</span></p>
+                        <p><strong>Systemic Risk Factors:</strong> <span id="summary-diseases" class="font-semibold text-teal-700">-</span></p>
+                    </div>
+                    <div>
+                        <p class="font-bold text-slate-800 mb-1">Attached Past Reports (<span id="summary-report-count">0</span>):</p>
+                        <div id="summary-reports-list" class="space-y-1 max-h-24 overflow-y-auto">
+                            <span class="text-slate-400 italic">No reports attached</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Doctor Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Doctor 1 -->
+                <div class="bg-white rounded-xl shadow-md border overflow-hidden flex flex-col justify-between">
+                    <div class="p-5">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center text-teal-700 font-bold text-xl">
+                                DR
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900">Dr. Sarah Jenkins</h3>
+                                <p class="text-xs text-teal-600 font-semibold">Retinal Specialist</p>
+                                <p class="text-xs text-slate-400">12+ Yrs Experience</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-600 mb-4">Expert in Diabetic Retinopathy, Macular Degeneration, and Iris Diagnostics.</p>
+                        <div class="text-xs font-bold text-slate-700">Fee: <span class="text-teal-600">$80.00</span></div>
+                    </div>
+                    <div class="bg-slate-50 p-4 border-t">
+                        <button onclick="selectDoctor('Dr. Sarah Jenkins', 80)" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 rounded-lg text-sm transition">Book & Consult</button>
+                    </div>
+                </div>
+
+                <!-- Doctor 2 -->
+                <div class="bg-white rounded-xl shadow-md border overflow-hidden flex flex-col justify-between">
+                    <div class="p-5">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-bold text-xl">
+                                DR
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900">Dr. Alan Vance</h3>
+                                <p class="text-xs text-blue-600 font-semibold">Glaucoma & Cornea Expert</p>
+                                <p class="text-xs text-slate-400">15+ Yrs Experience</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-600 mb-4">Specializes in intraocular pressure management, corneal diseases, and refractive issues.</p>
+                        <div class="text-xs font-bold text-slate-700">Fee: <span class="text-teal-600">$95.00</span></div>
+                    </div>
+                    <div class="bg-slate-50 p-4 border-t">
+                        <button onclick="selectDoctor('Dr. Alan Vance', 95)" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 rounded-lg text-sm transition">Book & Consult</button>
+                    </div>
+                </div>
+
+                <!-- Doctor 3 -->
+                <div class="bg-white rounded-xl shadow-md border overflow-hidden flex flex-col justify-between">
+                    <div class="p-5">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold text-xl">
+                                DR
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900">Dr. Elena Rostova</h3>
+                                <p class="text-xs text-indigo-600 font-semibold">Pediatric Ophthalmology</p>
+                                <p class="text-xs text-slate-400">9+ Yrs Experience</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-600 mb-4">Focused on strabismus, pediatric eye diseases, and early iris anomaly detection.</p>
+                        <div class="text-xs font-bold text-slate-700">Fee: <span class="text-teal-600">$70.00</span></div>
+                    </div>
+                    <div class="bg-slate-50 p-4 border-t">
+                        <button onclick="selectDoctor('Dr. Elena Rostova', 70)" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 rounded-lg text-sm transition">Book & Consult</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Direct Message / Emergency Note Box -->
+            <div class="bg-white p-6 rounded-xl shadow-md border">
+                <h3 class="font-bold text-slate-800 mb-2">Send Direct Message / Query to On-Call Clinic</h3>
+                <form onsubmit="sendMessage(event)" class="space-y-3">
+                    <textarea required placeholder="Write a direct message to our clinical staff or request doctor availability..." class="w-full p-3 border rounded-lg text-sm focus:ring-2 focus:ring-teal-500"></textarea>
+                    <button type="submit" class="bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 rounded-lg text-sm font-semibold">Send Inquiry</button>
                 </form>
             </div>
         </section>
 
-        <!-- Final Summary Board -->
-        <section id="final-summary" class="page-section">
-            <div class="glass-panel">
-                <h2 style="text-align: center; margin-bottom: 2rem;">Consultation Ready</h2>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem;">
-                    <!-- Doctor Info -->
-                    <div style="background: var(--glass-bg); padding: 2rem; border-radius: 20px; border-top: 4px solid var(--accent);">
-                        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Dr. Ajmal Khan</h3>
-                        <div class="data-row"><span class="data-label"><i class="fa-solid fa-phone"></i> WhatsApp</span><span class="data-value">03324894896</span></div>
-                        <div class="data-row"><span class="data-label"><i class="fa-solid fa-envelope"></i> Email</span><span class="data-value">seng0125@gmail.com</span></div>
+        <!-- PAGE 5: PAYMENT & VERIFICATION SYSTEM -->
+        <section id="page-payment" class="page-section">
+            <div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
+                <div class="border-b pb-4 mb-6">
+                    <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-credit-card text-teal-600"></i> Consultation Payment Gateway
+                    </h2>
+                    <p class="text-slate-500 text-sm">Secure payment verification for your doctor consultation</p>
+                </div>
+
+                <!-- Invoice Summary -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs text-slate-500 uppercase font-bold">Selected Doctor</p>
+                        <p id="pay-doc-name" class="text-lg font-bold text-slate-800">Select a doctor first</p>
                     </div>
-                    <!-- Patient Summary -->
-                    <div style="background: var(--glass-bg); padding: 2rem; border-radius: 20px; border-top: 4px solid #10b981;">
-                        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Your File</h3>
-                        <div id="finalPatientData"></div>
+                    <div class="text-right">
+                        <p class="text-xs text-slate-500 uppercase font-bold">Consultation Fee</p>
+                        <p id="pay-amount" class="text-2xl font-black text-teal-600">$0.00</p>
                     </div>
                 </div>
 
-                <div style="margin-top: 2.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                    <button class="btn btn-whatsapp" onclick="sendToDoctor('whatsapp')"><i class="fa-brands fa-whatsapp"></i> Send to WhatsApp</button>
-                    <button class="btn btn-gmail" onclick="sendToDoctor('email')"><i class="fa-solid fa-envelope"></i> Send to Gmail</button>
+                <!-- Payment Form -->
+                <form id="payment-form" onsubmit="processPayment(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Payment Method</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <label class="border p-3 rounded-lg flex flex-col items-center cursor-pointer hover:border-teal-500">
+                                <input type="radio" name="paymethod" value="card" checked class="mb-1">
+                                <span class="text-xs font-bold">Credit/Debit Card</span>
+                            </label>
+                            <label class="border p-3 rounded-lg flex flex-col items-center cursor-pointer hover:border-teal-500">
+                                <input type="radio" name="paymethod" value="insurance" class="mb-1">
+                                <span class="text-xs font-bold">Health Insurance</span>
+                            </label>
+                            <label class="border p-3 rounded-lg flex flex-col items-center cursor-pointer hover:border-teal-500">
+                                <input type="radio" name="paymethod" value="wallet" class="mb-1">
+                                <span class="text-xs font-bold">Digital Wallet</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Cardholder Name</label>
+                        <input type="text" id="card-name" required placeholder="John Doe" class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="col-span-2">
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Card Number</label>
+                            <input type="text" maxlength="19" placeholder="4532 •••• •••• 8890" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">CVV</label>
+                            <input type="password" maxlength="4" placeholder="123" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-teal-500">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="pay-btn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg shadow-md transition mt-4">
+                        Pay & Verify Appointment
+                    </button>
+                </form>
+
+                <!-- Payment Status / Receipt Output -->
+                <div id="payment-receipt" class="hidden mt-6 p-6 bg-emerald-50 border border-emerald-200 rounded-xl">
+                    <div class="flex items-center space-x-3 text-emerald-800 mb-3">
+                        <i class="fa-solid fa-circle-check text-2xl text-emerald-600"></i>
+                        <div>
+                            <h4 class="font-bold text-lg">Payment Verified & Appointment Confirmed!</h4>
+                            <p class="text-xs text-emerald-600">Transaction ID: <span id="txn-id" class="font-mono font-bold">TXN-99823412</span></p>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-600 space-y-1 border-t border-emerald-200 pt-3">
+                        <p><strong>Patient Name:</strong> <span id="rec-patient">John Doe</span></p>
+                        <p><strong>Assigned Doctor:</strong> <span id="rec-doctor">Dr. Sarah Jenkins</span></p>
+                        <p><strong>Attached Medical Reports Reviewed:</strong> <span id="rec-reports-count" class="font-bold">0 reports</span></p>
+                        <p><strong>Status:</strong> <span class="bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded font-bold">VERIFIED</span></p>
+                    </div>
+                    <button onclick="navigateTo('page-doctors')" class="mt-4 w-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-2 rounded-lg text-sm">
+                        Return to Doctor Portal
+                    </button>
                 </div>
             </div>
         </section>
 
-        <!-- Doctor Portal -->
-        <section id="doctor" class="page-section">
-            <div class="glass-panel">
-                <h2><i class="fa-solid fa-user-doctor"></i> Doctor's Database</h2>
-                <table id="patientTable">
-                    <thead><tr><th>Date</th><th>Patient</th><th>Frame Pick</th><th>Status</th></tr></thead>
-                    <tbody id="patientTableBody"></tbody>
-                </table>
-            </div>
-        </section>
+    </main>
 
+    <!-- MODAL FOR UPLOADING NEW REPORT FROM PREVIOUS REPORTS PAGE -->
+    <div id="upload-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 class="font-bold text-lg text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up text-teal-600"></i> Upload Historical Report
+                </h3>
+                <button onclick="closeUploadModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg">&times;</button>
+            </div>
+            <form onsubmit="handleModalUpload(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Report Title / Test Type *</label>
+                    <select id="modal-report-type" required class="w-full p-2.5 border rounded-lg text-xs focus:ring-2 focus:ring-teal-500">
+                        <option value="">Select Test Type</option>
+                        <option>OCT Scan (Optical Coherence Tomography)</option>
+                        <option>Visual Field Test</option>
+                        <option>Retinal Fundus Photograph</option>
+                        <option>Doctor Prescription / Notes</option>
+                        <option>Intraocular Pressure (IOP) Report</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Diagnosing Doctor / Clinic Name</label>
+                    <input type="text" id="modal-doctor" placeholder="e.g., Dr. Robert Smith / Vision Eye Care" class="w-full p-2.5 border rounded-lg text-xs">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Test Date *</label>
+                        <input type="date" id="modal-date" required class="w-full p-2.5 border rounded-lg text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Select File (PDF/Image) *</label>
+                        <input type="file" id="modal-file" accept=".pdf, .jpg, .jpeg, .png" required class="w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-teal-600 file:text-white cursor-pointer">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Clinical Notes / Observations</label>
+                    <textarea id="modal-notes" rows="2" placeholder="Summary of findings or doctor recommendations..." class="w-full p-2.5 border rounded-lg text-xs"></textarea>
+                </div>
+                <div class="flex justify-end space-x-2 pt-3 border-t">
+                    <button type="button" onclick="closeUploadModal()" class="px-4 py-2 border rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-semibold shadow">Upload Report</button>
+                </div>
+            </form>
+        </div>
     </div>
 
+    <!-- JAVASCRIPT LOGIC -->
     <script>
-        let currentPatient = { frame: 'Not selected yet' };
-        let consultationNotes = {};
+        // Global Application State & Temporary File Staging Array
+        const state = {
+            isRegistered: false,
+            isLoggedIn: false,
+            patient: {
+                name: '',
+                email: '',
+                password: '',
+                age: '',
+                gender: '',
+                iris: '',
+                wear: '',
+                diseases: [],
+                notes: '',
+                reports: []
+            },
+            selectedDoctor: null,
+            fee: 0
+        };
 
-        function navigate(sectionId) {
-            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
-            document.querySelectorAll('.nav-link').forEach(nav => nav.classList.remove('active'));
-            document.getElementById(sectionId).classList.add('active');
-            
-            if(sectionId === 'home') document.querySelectorAll('.nav-link')[0].classList.add('active');
-            if(sectionId === 'registration') document.querySelectorAll('.nav-link')[1].classList.add('active');
-            if(['dashboard', 'detailed-catalog', 'consultation-room', 'final-summary'].includes(sectionId)) {
-                document.getElementById('nav-dashboard').classList.add('active');
-                updateDashboardDisplay();
+        // Temporary staging array for files during registration form filling
+        let stagedReports = [];
+
+        // Page Router
+        function navigateTo(pageId) {
+            // Guard route: Patients cannot visit secure pages without logging in
+            if ((pageId === 'page-doctors' || pageId === 'page-payment' || pageId === 'page-reports') && !state.isLoggedIn) {
+                alert("Access Denied: Please complete registration and log in first.");
+                navigateTo('page-login');
+                return;
             }
-            if(sectionId === 'doctor') loadDoctorDashboard();
+
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+
+            // If navigating to reports page, refresh the UI table
+            if (pageId === 'page-reports') {
+                renderReportsPage();
+            }
+
+            // Toggle Nav links visibility
+            const nav = document.getElementById('nav-links');
+            if (state.isLoggedIn) {
+                nav.classList.remove('hidden');
+                document.getElementById('nav-user-display').innerText = state.patient.name;
+            } else {
+                nav.classList.add('hidden');
+            }
         }
 
-        function doctorLogin() {
-            if (prompt("Enter Doctor PIN:") !== null) navigate('doctor');
+        // Add Report File to Staging List during Registration
+        function addReportFile() {
+            const fileInput = document.getElementById('report-file-input');
+            if (fileInput.files.length === 0) {
+                alert("Please select a report file (PDF, JPG, or PNG) to upload.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const fileEntry = {
+                id: 'REP-' + Math.floor(1000 + Math.random() * 9000),
+                name: file.name,
+                type: 'General Eye Test / Scan',
+                doctor: 'External Clinician',
+                size: (file.size / 1024).toFixed(1) + ' KB',
+                date: new Date().toISOString().split('T')[0],
+                notes: 'Uploaded during initial registration.'
+            };
+
+            stagedReports.push(fileEntry);
+            fileInput.value = ''; // Reset input
+            renderStagedFiles();
         }
 
-        function preparePreview() {
-            currentPatient.name = document.getElementById('patName').value;
-            currentPatient.age = document.getElementById('patAge').value;
-            currentPatient.phone = document.getElementById('patPhone').value;
-            currentPatient.condition = document.getElementById('patCondition').value;
-            currentPatient.date = new Date().toLocaleDateString();
-
-            document.getElementById('previewDataArea').innerHTML = `
-                <div class="data-row"><span class="data-label">Name</span><span class="data-value">${currentPatient.name}</span></div>
-                <div class="data-row"><span class="data-label">Phone</span><span class="data-value">${currentPatient.phone}</span></div>
-            `;
-            navigate('preview');
+        // Remove Staged Report File
+        function removeStagedFile(index) {
+            stagedReports.splice(index, 1);
+            renderStagedFiles();
         }
 
-        function processPayment() {
-            alert("Registration complete!");
-            document.getElementById('nav-dashboard').style.display = 'block';
-            navigate('dashboard');
-        }
-
-        function updateDashboardDisplay() {
-            document.getElementById('dashName').innerText = currentPatient.name || 'Patient';
-            document.getElementById('dashDataArea').innerHTML = `
-                <div class="data-row"><span class="data-label">Name</span><span class="data-value">${currentPatient.name || '-'}</span></div>
-                <div class="data-row"><span class="data-label">Phone</span><span class="data-value">${currentPatient.phone || '-'}</span></div>
-                <div class="data-row"><span class="data-label">Condition</span><span class="data-value">${currentPatient.condition || '-'}</span></div>
-                <div class="data-row"><span class="data-label" style="color:var(--accent); font-weight:bold;">Selected Eyewear</span><span class="data-value" style="color:var(--accent);">${currentPatient.frame}</span></div>
-            `;
-        }
-
-        function selectFrame(frameName, price) {
-            currentPatient.frame = `${frameName} (Rs. ${price})`;
-            alert(`${frameName} has been attached to your profile.`);
-            navigate('dashboard'); // Sends them back to dash to see the update
-        }
-
-        function finishConsultation() {
-            consultationNotes.problem = document.getElementById('qProblem').value;
-            consultationNotes.reason = document.getElementById('qReason').value;
-
-            document.getElementById('finalPatientData').innerHTML = `
-                <div class="data-row"><span class="data-label">Name</span><span class="data-value">${currentPatient.name}</span></div>
-                <div class="data-row"><span class="data-label">Eyewear</span><span class="data-value">${currentPatient.frame}</span></div>
-                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
-                    <p style="color:var(--accent); font-size:0.9rem; margin-bottom:5px;"><strong>Symptoms:</strong></p>
-                    <p style="font-size:0.9rem; color:var(--text-muted);">${consultationNotes.problem}</p>
-                </div>
-            `;
-            navigate('final-summary');
-        }
-
-        function sendToDoctor(method) {
-            let db = JSON.parse(localStorage.getItem('cambridge_db') || '[]');
-            db.unshift({...currentPatient, ...consultationNotes});
-            localStorage.setItem('cambridge_db', JSON.stringify(db));
-
-            const msg = `*Cambridge Opticians - Patient File*%0A%0A` +
-                        `*Patient:* ${currentPatient.name} (Age: ${currentPatient.age})%0A` +
-                        `*Phone:* ${currentPatient.phone}%0A` +
-                        `*Selected Frame:* ${currentPatient.frame}%0A%0A` +
-                        `*Symptoms:* ${consultationNotes.problem}%0A` +
-                        `*Reason for Visit:* ${consultationNotes.reason}`;
-
-            if (method === 'whatsapp') window.open(`https://wa.me/923324894896?text=${msg}`, '_blank');
-            if (method === 'email') window.open(`mailto:seng0125@gmail.com?subject=Consultation:%20${currentPatient.name}&body=${decodeURIComponent(msg).replace(/\*/g, '').replace(/%0A/g, '%0D%0A')}`, '_blank');
+        // Render Staged Files in Registration View
+        function renderStagedFiles() {
+            const container = document.getElementById('uploaded-files-container');
+            const list = document.getElementById('files-list');
             
-            navigate('dashboard');
+            if (stagedReports.length === 0) {
+                container.classList.add('hidden');
+                list.innerHTML = '';
+                return;
+            }
+
+            container.classList.remove('hidden');
+            list.innerHTML = '';
+
+            stagedReports.forEach((rep, idx) => {
+                const item = document.createElement('div');
+                item.className = 'flex justify-between items-center bg-white p-2.5 rounded-lg border text-xs';
+                item.innerHTML = `
+                    <div class="flex items-center space-x-2 truncate">
+                        <i class="fa-solid fa-file-pdf text-rose-500"></i>
+                        <span class="font-semibold truncate">${rep.name}</span>
+                        <span class="text-slate-400">(${rep.size})</span>
+                    </div>
+                    <button type="button" onclick="removeStagedFile(${idx})" class="text-rose-600 hover:text-rose-800 font-bold px-2 py-1">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                `;
+                list.appendChild(item);
+            });
         }
 
-        function loadDoctorDashboard() {
-            const tbody = document.getElementById('patientTableBody');
-            const db = JSON.parse(localStorage.getItem('cambridge_db') || '[]');
-            tbody.innerHTML = db.length === 0 ? '<tr><td colspan="4" style="text-align:center;">No records found.</td></tr>' : 
-                db.map(p => `<tr><td>${p.date}</td><td style="font-weight:bold;">${p.name}</td><td>${p.frame}</td><td><span style="color:#10b981;">Complete</span></td></tr>`).join('');
+        // Handle Patient Registration
+        function handleRegistration(e) {
+            e.preventDefault();
+            
+            const selectedDiseases = Array.from(document.querySelectorAll('input[name="disease"]:checked'))
+                                         .map(cb => cb.value);
+
+            state.patient = {
+                name: document.getElementById('reg-name').value,
+                email: document.getElementById('reg-email').value,
+                password: document.getElementById('reg-pass').value,
+                age: document.getElementById('reg-age').value,
+                gender: document.getElementById('reg-gender').value,
+                iris: document.getElementById('reg-iris').value,
+                wear: document.getElementById('reg-wear').value,
+                diseases: selectedDiseases,
+                notes: document.getElementById('reg-notes').value,
+                reports: [...stagedReports]
+            };
+
+            state.isRegistered = true;
+            state.isLoggedIn = true;
+
+            alert(`Registration Complete! Welcome, ${state.patient.name}.`);
+            
+            updatePatientSummaryUI();
+            navigateTo('page-reports');
+        }
+
+        // Render Dedicated Previous Reports Page Table & Stats
+        function renderReportsPage() {
+            document.getElementById('stat-total-reports').innerText = state.patient.reports.length;
+            document.getElementById('stat-patient-name').innerText = state.patient.name || '-';
+            
+            const reportsContainer = document.getElementById('reports-table-container');
+            
+            if (state.patient.reports.length === 0) {
+                document.getElementById('stat-latest-date').innerText = 'None';
+                reportsContainer.innerHTML = `
+                    <div class="p-8 text-center text-slate-400">
+                        <i class="fa-solid fa-folder-open text-4xl mb-2 text-slate-300"></i>
+                        <p class="text-sm font-semibold">No historical eye reports found.</p>
+                        <p class="text-xs mt-1">Click "Upload New Report" to add your past eye test records or scans.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort reports by date descending
+            const sortedReports = [...state.patient.reports].sort((a,b) => new Date(b.date) - new Date(a.date));
+            document.getElementById('stat-latest-date').innerText = sortedReports[0].date;
+
+            reportsContainer.innerHTML = '';
+            sortedReports.forEach((rep, idx) => {
+                const row = document.createElement('div');
+                row.className = 'p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center hover:bg-slate-50 transition gap-3';
+                row.innerHTML = `
+                    <div class="flex items-start space-x-3">
+                        <div class="bg-teal-100 text-teal-700 p-3 rounded-lg mt-0.5">
+                            <i class="fa-solid fa-file-medical text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h4 class="font-bold text-slate-900 text-sm">${rep.type}</h4>
+                                <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-mono">${rep.id || 'REP-001'}</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-0.5"><i class="fa-solid fa-user-doctor mr-1"></i> ${rep.doctor || 'Clinician'} &bull; <i class="fa-solid fa-calendar mr-1"></i> ${rep.date} (${rep.size || 'PDF'})</p>
+                            <p class="text-xs text-slate-600 mt-1 italic bg-slate-50 p-1.5 rounded border border-slate-100 max-w-md">"${rep.notes || 'No specific clinical notes added.'}"</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 self-end sm:self-center">
+                        <button onclick="previewReport('${rep.name}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+                            <i class="fa-solid fa-eye"></i> Preview
+                        </button>
+                        <button onclick="deleteReport(${idx})" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+                reportsContainer.appendChild(row);
+            });
+        }
+
+        // Modal Controls for Uploading from Previous Reports Page
+        function openUploadModal() {
+            document.getElementById('upload-modal').classList.remove('hidden');
+            document.getElementById('modal-date').value = new Date().toISOString().split('T')[0];
+        }
+
+        function closeUploadModal() {
+            document.getElementById('upload-modal').classList.add('hidden');
+        }
+
+        // Handle Modal Upload Submission
+        function handleModalUpload(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('modal-file');
+            const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : 'UploadedScan.pdf';
+
+            const newReport = {
+                id: 'REP-' + Math.floor(1000 + Math.random() * 9000),
+                type: document.getElementById('modal-report-type').value,
+                doctor: document.getElementById('modal-doctor').value || 'Attending Specialist',
+                date: document.getElementById('modal-date').value,
+                name: fileName,
+                size: (Math.random() * 2 + 0.5).toFixed(1) + ' MB',
+                notes: document.getElementById('modal-notes').value || 'Uploaded via patient previous reports portal.'
+            };
+
+            state.patient.reports.push(newReport);
+            closeUploadModal();
+            e.target.reset();
+            
+            alert("Report successfully uploaded and archived to your health profile!");
+            renderReportsPage();
+            updatePatientSummaryUI();
+        }
+
+        // Preview Report simulated alert/modal viewer
+        function previewReport(fileName) {
+            alert(`Opening secure viewer for report file: "${fileName}".\n\n[Simulated Document Preview]: All ophthalmic measurements, optical coherence tomography scans, and pressure readings are verified.`);
+        }
+
+        // Delete Report Entry
+        function deleteReport(index) {
+            if (confirm("Are you sure you want to delete this historical report from your profile?")) {
+                state.patient.reports.splice(index, 1);
+                renderReportsPage();
+                updatePatientSummaryUI();
+            }
+        }
+
+        // Update Summary Card in Doctor Portal
+        function updatePatientSummaryUI() {
+            document.getElementById('patient-badge').innerText = `Patient: ${state.patient.name}`;
+            document.getElementById('summary-name').innerText = state.patient.name;
+            document.getElementById('summary-age-gender').innerText = `${state.patient.age} yrs / ${state.patient.gender}`;
+            document.getElementById('summary-iris').innerText = state.patient.iris;
+            document.getElementById('summary-wear').innerText = state.patient.wear;
+            document.getElementById('summary-diseases').innerText = state.patient.diseases.length > 0 ? state.patient.diseases.join(', ') : 'None reported';
+            
+            const repCount = state.patient.reports.length;
+            document.getElementById('summary-report-count').innerText = repCount;
+            
+            const repListContainer = document.getElementById('summary-reports-list');
+            if (repCount === 0) {
+                repListContainer.innerHTML = '<span class="text-slate-400 italic">No past reports uploaded</span>';
+            } else {
+                repListContainer.innerHTML = '';
+                state.patient.reports.forEach(r => {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center space-x-1 text-teal-800 bg-teal-50 px-2 py-1 rounded truncate';
+                    div.innerHTML = `<i class="fa-solid fa-file-lines text-teal-600 mr-1"></i> <span class="truncate">${r.type || r.name}</span>`;
+                    repListContainer.appendChild(div);
+                });
+            }
+        }
+
+        // Handle Login
+        function handleLogin(e) {
+            e.preventDefault();
+            const inputEmail = document.getElementById('login-email').value;
+
+            if (!state.isRegistered) {
+                alert("No account found! Please click 'Register New Account' first.");
+                return;
+            }
+
+            if (inputEmail.toLowerCase() !== state.patient.email.toLowerCase()) {
+                alert("Incorrect Email or Patient ID. Please verify or register.");
+                return;
+            }
+
+            state.isLoggedIn = true;
+            updatePatientSummaryUI();
+            navigateTo('page-reports');
+        }
+
+        // Handle Doctor Selection
+        function selectDoctor(docName, fee) {
+            state.selectedDoctor = docName;
+            state.fee = fee;
+
+            document.getElementById('pay-doc-name').innerText = docName;
+            document.getElementById('pay-amount').innerText = `$${fee.toFixed(2)}`;
+            
+            navigateTo('page-payment');
+        }
+
+        // Handle Payment Verification
+        function processPayment(e) {
+            e.preventDefault();
+            const payBtn = document.getElementById('pay-btn');
+            
+            payBtn.innerText = "Verifying Transaction with Bank...";
+            payBtn.disabled = true;
+
+            setTimeout(() => {
+                payBtn.classList.add('hidden');
+                
+                const receipt = document.getElementById('payment-receipt');
+                document.getElementById('rec-patient').innerText = state.patient.name;
+                document.getElementById('rec-doctor').innerText = state.selectedDoctor;
+                document.getElementById('rec-reports-count').innerText = `${state.patient.reports.length} report(s) attached for doctor review`;
+                document.getElementById('txn-id').innerText = 'TXN-' + Math.floor(10000000 + Math.random() * 90000000);
+                
+                receipt.classList.remove('hidden');
+            }, 1800);
+        }
+
+        // Send Inquiry
+        function sendMessage(e) {
+            e.preventDefault();
+            alert("Your inquiry along with your attached past medical reports has been sent directly to the clinical team.");
+            e.target.reset();
+        }
+
+        // Logout
+        function logout() {
+            state.isLoggedIn = false;
+            navigateTo('page-login');
         }
     </script>
 </body>
