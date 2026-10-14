@@ -3,493 +3,454 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cambridge Opticians | Digital Portal</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>Cambridge Opticians | Digital Clinic</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Base Variables & Setup */
         :root {
-            --bg-dark: #0f172a;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            --accent-primary: #38bdf8;
-            --accent-secondary: #818cf8;
+            --bg-color: #0f172a;
+            --glass-bg: rgba(255, 255, 255, 0.07);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --accent: #0ea5e9;
+            --accent-hover: #38bdf8;
             --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --whatsapp: #25D366;
-            --gmail: #ea4335;
+            --text-muted: #cbd5e1;
+            --price: #10b981;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            background-color: var(--bg-dark);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.15), transparent 30%),
+                radial-gradient(circle at 90% 80%, rgba(56, 189, 248, 0.1), transparent 30%);
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
-            position: relative;
         }
 
-        /* Ambient Background Orbs */
-        .ambient-orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(100px);
-            z-index: -1;
-            animation: float 20s infinite alternate ease-in-out;
-        }
-        .orb-1 { width: 400px; height: 400px; background: rgba(56, 189, 248, 0.15); top: -100px; left: -100px; }
-        .orb-2 { width: 500px; height: 500px; background: rgba(129, 140, 248, 0.15); bottom: -200px; right: -100px; animation-delay: -5s; }
-
-        @keyframes float {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
-        }
-
-        /* Header */
+        /* Navigation */
         header {
-            padding: 1.5rem 2rem;
-            background: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--glass-border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border); padding: 1rem 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
         }
 
-        .brand {
-            font-size: 1.5rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            color: var(--text-main);
-            text-decoration: none;
+        .logo { font-size: 1.8rem; font-weight: 800; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+        nav { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .nav-link {
+            color: var(--text-main); text-decoration: none; font-weight: 500;
+            cursor: pointer; padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.3s;
         }
-        
-        .brand i { color: var(--accent-primary); }
+        .nav-link:hover, .nav-link.active { background: var(--glass-bg); color: var(--accent); }
+        .nav-link.doctor-btn { background: rgba(234, 67, 53, 0.1); color: #fca5a5; border: 1px solid rgba(234, 67, 53, 0.3); }
 
-        /* Main Container */
-        main {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; flex-grow: 1; width: 100%; }
+        .page-section { display: none; animation: slideUp 0.5s ease-out forwards; }
+        .page-section.active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* View Management */
-        .view-section {
-            width: 100%;
-            max-width: 600px;
-            display: none;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.5s ease, transform 0.5s ease;
+        /* Glassmorphism */
+        .glass-panel {
+            background: var(--glass-bg); backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border); border-radius: 20px;
+            padding: 2.5rem; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); margin-bottom: 2rem;
         }
+        h2 { font-size: 2rem; margin-bottom: 1.5rem; color: var(--accent); }
 
-        .view-section.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
+        /* Forms */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group label { font-size: 0.95rem; color: var(--text-muted); font-weight: 500; }
+        input[type="text"], input[type="tel"], input[type="number"], select, textarea {
+            background: rgba(0, 0, 0, 0.25); border: 1px solid var(--glass-border);
+            color: white; padding: 14px; border-radius: 12px; font-size: 1rem;
+            transition: all 0.3s; outline: none; font-family: inherit;
         }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(14, 165, 233, 0.3); }
 
-        /* Dashboard specific layout */
-        #dashboard-view.active {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
-            max-width: 1000px;
+        /* Buttons */
+        .btn {
+            border: none; padding: 15px 30px; color: white; font-size: 1.1rem;
+            border-radius: 30px; cursor: pointer; font-weight: 600; transition: all 0.3s;
+            display: inline-flex; align-items: center; gap: 10px; justify-content: center; text-align: center;
         }
+        .btn-primary { background: linear-gradient(45deg, #0284c7, #0ea5e9); }
+        .btn-success { background: linear-gradient(45deg, #059669, #10b981); }
+        .btn-edit { background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); }
+        .btn-whatsapp { background: linear-gradient(45deg, #128C7E, #25D366); }
+        .btn-gmail { background: linear-gradient(45deg, #C71610, #EA4335); }
+        .btn:hover { transform: scale(1.05) translateY(-2px); filter: brightness(1.1); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .btn-small { padding: 10px 20px; font-size: 0.95rem; border-radius: 20px; }
 
-        @media (min-width: 768px) {
-            #dashboard-view.active {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        /* Glassmorphism Cards */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 2.5rem;
-            box-shadow: var(--glass-shadow);
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* 3D Hover Effect */
-        .hover-3d {
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
-            transform: perspective(1000px) rotateX(0) rotateY(0) scale(1);
-        }
-
-        .hover-3d:hover {
-            transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.02);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        /* Typography */
-        h1, h2, h3 { color: var(--text-main); margin-bottom: 0.5rem; }
-        p { color: var(--text-muted); line-height: 1.6; margin-bottom: 1.5rem; }
-        
-        /* Form Elements */
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 1rem;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            color: var(--text-main);
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            outline: none;
-        }
-
-        input:focus, select:focus {
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
-            background: rgba(0, 0, 0, 0.4);
-        }
-
-        option {
-            background: var(--bg-dark);
-            color: var(--text-main);
-        }
-
-        /* Primary Button */
-        .btn-submit {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin-top: 1rem;
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(56, 189, 248, 0.4);
-        }
-
-        /* Dashboard Data Rows */
-        .data-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
+        /* Data Displays */
+        .data-card { background: rgba(0,0,0,0.3); border-radius: 15px; padding: 2rem; border: 1px solid var(--glass-border); margin-bottom: 1.5rem; }
+        .data-row { display: flex; justify-content: space-between; padding: 0.8rem 0; border-bottom: 1px dashed var(--glass-border); }
         .data-row:last-child { border-bottom: none; }
-        .data-label { color: var(--text-muted); font-size: 0.9rem; }
-        .data-value { font-weight: 600; color: var(--text-main); text-align: right; }
+        .data-label { color: var(--text-muted); font-size: 0.95rem; }
+        .data-value { font-weight: 600; color: var(--text-main); text-align: right; max-width: 65%; }
 
-        /* Doctor Profile */
-        .doctor-profile {
-            text-align: center;
-            margin-bottom: 2rem;
+        /* Detailed Product Catalog Grid */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; }
+        .product-card {
+            background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; 
+            padding: 1.5rem; transition: 0.4s; position: relative; overflow: hidden;
+            display: flex; flex-direction: column;
         }
+        .product-card:hover { border-color: var(--accent); transform: translateY(-10px); box-shadow: 0 15px 30px rgba(14, 165, 233, 0.2); }
+        .product-img { width: 100%; height: 200px; object-fit: cover; border-radius: 15px; margin-bottom: 1.2rem; }
         
-        .doctor-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--glass-border), rgba(255,255,255,0));
-            margin: 0 auto 1rem auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            color: var(--accent-primary);
-            border: 2px solid rgba(255,255,255,0.1);
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
-        }
-
-        /* Liquid Animated Buttons */
-        .liquid-btn {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            width: 100%;
-            padding: 1rem 1.5rem;
-            margin-bottom: 1rem;
-            border: none;
-            border-radius: 16px;
-            color: white;
-            font-size: 1rem;
-            font-weight: 600;
-            text-decoration: none;
-            overflow: hidden;
-            z-index: 1;
-            cursor: pointer;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .liquid-btn:hover {
-            transform: scale(1.03);
-        }
-
-        /* The liquid background animation */
-        .liquid-btn::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 300%; height: 300%;
-            background: inherit;
-            border-radius: 40%;
-            z-index: -1;
-            transition: all 0.6s ease;
-        }
-
-        .liquid-btn:hover::before {
-            animation: spin 3s linear infinite;
-            top: -100%;
-        }
-
-        .btn-wa {
-            background-color: var(--whatsapp);
-            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.3);
-        }
+        .product-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .product-title { font-size: 1.25rem; font-weight: 700; color: white; margin-bottom: 4px; }
+        .product-price { background: rgba(16, 185, 129, 0.2); color: var(--price); padding: 5px 12px; border-radius: 20px; font-weight: bold; border: 1px solid rgba(16, 185, 129, 0.4); font-size: 0.95rem; }
         
-        .btn-gmail {
-            background-color: var(--gmail);
-            box-shadow: 0 8px 25px rgba(234, 67, 53, 0.3);
-        }
+        .product-details-list { list-style: none; margin-bottom: 1.5rem; flex-grow: 1; }
+        .product-details-list li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
+        .product-details-list li span:first-child { color: var(--text-muted); }
+        .product-details-list li span:last-child { font-weight: 600; color: var(--text-main); text-align: right; }
+        
+        .quality-badge { position: absolute; top: 1.5rem; left: 1.5rem; background: linear-gradient(45deg, #f59e0b, #fbbf24); color: #000; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--glass-border); }
+        th { color: var(--accent); background: rgba(0,0,0,0.2); }
 
     </style>
 </head>
 <body>
 
-    <!-- Ambient Background Elements -->
-    <div class="ambient-orb orb-1"></div>
-    <div class="ambient-orb orb-2"></div>
-
-    <!-- Navigation Header -->
     <header>
-        <a href="#" class="brand">
-            <i class="fa-solid fa-glasses"></i> Cambridge Opticians
-        </a>
-        <div style="font-size: 0.9rem; color: var(--text-muted);">
-            <i class="fa-solid fa-shield-halved"></i> Secure Portal
-        </div>
+        <div class="logo"><i class="fa-solid fa-glasses"></i> Cambridge</div>
+        <nav>
+            <a class="nav-link active" onclick="navigate('home')">Home</a>
+            <a class="nav-link" onclick="navigate('registration')">Registration</a>
+            <a class="nav-link" id="nav-dashboard" style="display:none;" onclick="navigate('dashboard')">Dashboard</a>
+            <a class="nav-link doctor-btn" onclick="doctorLogin()">Doctor Portal</a>
+        </nav>
     </header>
 
-    <main>
-        <!-- 1. Patient Registration View -->
-        <section id="registration-view" class="view-section active">
-            <div class="glass-card hover-3d">
+    <div class="container">
+        
+        <!-- Home -->
+        <section id="home" class="page-section active">
+            <div class="glass-panel" style="text-align: center; padding: 4rem 2rem;">
+                <h1 style="font-size: 3rem; margin-bottom: 1rem;">Clarity for Every Vision</h1>
+                <p style="color: var(--text-muted); font-size: 1.2rem; max-width: 600px; margin: 0 auto 2rem auto;">
+                    Register your condition, browse our premium eyewear, and start an open consultation directly with Dr. Ajmal Khan.
+                </p>
+                <button class="btn btn-primary" onclick="navigate('registration')">Start Patient Registration</button>
+            </div>
+        </section>
+
+        <!-- Registration Form -->
+        <section id="registration" class="page-section">
+            <div class="glass-panel">
                 <h2>Patient Registration</h2>
-                <p>Register your details to create your digital eye health profile and connect with our specialists.</p>
-                
-                <form id="regForm">
-                    <div class="form-group">
-                        <label for="pName"><i class="fa-regular fa-user"></i> Full Name</label>
-                        <input type="text" id="pName" required placeholder="e.g., John Doe" autocomplete="off">
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
+                <form onsubmit="event.preventDefault(); preparePreview();">
+                    <div class="form-grid">
                         <div class="form-group">
-                            <label for="pAge"><i class="fa-solid fa-cake-candles"></i> Age</label>
-                            <input type="number" id="pAge" required placeholder="Years" min="1" max="120">
+                            <label>Patient Full Name</label>
+                            <input type="text" id="patName" required placeholder="Enter your name">
                         </div>
                         <div class="form-group">
-                            <label for="pPhone"><i class="fa-solid fa-phone"></i> Phone Number</label>
-                            <input type="tel" id="pPhone" required placeholder="e.g., 03XXXXXXXXX">
+                            <label>Age</label>
+                            <input type="number" id="patAge" required placeholder="Years">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone / WhatsApp Number</label>
+                            <input type="tel" id="patPhone" required placeholder="e.g., 03XXXXXXXXX">
+                        </div>
+                        <div class="form-group">
+                            <label>Primary Eye Condition (If known)</label>
+                            <select id="patCondition">
+                                <option value="Unsure / Need Diagnosis">Unsure / Need Diagnosis</option>
+                                <option value="Myopia (Nearsightedness)">Myopia (Nearsightedness)</option>
+                                <option value="Astigmatism">Astigmatism</option>
+                                <option value="Cataract">Cataract</option>
+                            </select>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="pCondition"><i class="fa-regular fa-eye"></i> Primary Eye Condition</label>
-                        <select id="pCondition" required>
-                            <option value="" disabled selected>Select your condition...</option>
-                            <option value="Myopia (Nearsightedness)">Myopia (Nearsightedness)</option>
-                            <option value="Hyperopia (Farsightedness)">Hyperopia (Farsightedness)</option>
-                            <option value="Astigmatism">Astigmatism</option>
-                            <option value="Presbyopia (Aging Eyes)">Presbyopia (Aging Eyes)</option>
-                            <option value="Routine Checkup / General">Routine Checkup / General</option>
-                            <option value="Other / Unsure">Other / Unsure</option>
-                        </select>
+                    <div style="margin-top: 2rem;">
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-file-lines"></i> Preview Details</button>
                     </div>
-
-                    <button type="submit" class="btn-submit">Complete Registration <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i></button>
                 </form>
             </div>
         </section>
 
-        <!-- 2. Patient Dashboard View -->
-        <section id="dashboard-view" class="view-section">
-            
-            <!-- Patient Details Card -->
-            <div class="glass-card hover-3d">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
-                    <div>
-                        <h2 style="font-size: 1.5rem;">Patient Profile</h2>
-                        <p style="margin-bottom: 0;">Your registered details.</p>
-                    </div>
-                    <span style="background: rgba(56, 189, 248, 0.1); color: var(--accent-primary); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(56, 189, 248, 0.3);">
-                        <i class="fa-solid fa-check"></i> Registered
+        <!-- Preview & Payment Section -->
+        <section id="preview" class="page-section">
+            <div class="glass-panel">
+                <h2>Registration Preview</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Review your details before completing registration to unlock the digital dashboard.</p>
+                
+                <div class="data-card" id="previewDataArea"></div>
+
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-edit" onclick="navigate('registration')"><i class="fa-solid fa-pen"></i> Edit</button>
+                    <div style="flex-grow: 1;"></div>
+                    <button class="btn btn-success" onclick="processPayment()"><i class="fa-solid fa-check"></i> Complete Registration</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Patient Dashboard -->
+        <section id="dashboard" class="page-section">
+            <div class="glass-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                    <h2>Welcome, <span id="dashName" style="color:white;"></span></h2>
+                    <span style="background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 5px 15px; border-radius: 20px; border: 1px solid #10b981;">
+                        <i class="fa-solid fa-check-circle"></i> Registered Profile
                     </span>
                 </div>
-
-                <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 1rem 1.5rem;">
-                    <div class="data-row">
-                        <span class="data-label">Name</span>
-                        <span class="data-value" id="dashName">--</span>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">Age</span>
-                        <span class="data-value" id="dashAge">--</span>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">Contact</span>
-                        <span class="data-value" id="dashPhone">--</span>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">Diagnosis</span>
-                        <span class="data-value" id="dashCondition">--</span>
-                    </div>
-                </div>
                 
-                <button onclick="editDetails()" style="background: transparent; border: 1px solid var(--glass-border); color: var(--text-main); padding: 0.8rem; width: 100%; border-radius: 12px; margin-top: 1.5rem; cursor: pointer; transition: 0.3s;">
-                    <i class="fa-solid fa-pen-to-square"></i> Edit Details
-                </button>
-            </div>
+                <div class="data-card" id="dashDataArea"></div>
 
-            <!-- Doctor Contact Card -->
-            <div class="glass-card hover-3d">
-                <div class="doctor-profile">
-                    <div class="doctor-avatar">
-                        <i class="fa-solid fa-user-doctor"></i>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">What would you like to do next?</p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-edit" onclick="navigate('detailed-catalog')">
+                        <i class="fa-solid fa-glasses"></i> Browse Eyewear Catalog
+                    </button>
+                    <button class="btn btn-primary" onclick="navigate('consultation-room')">
+                        <i class="fa-solid fa-user-doctor"></i> Start Doctor Consultation
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Detailed Product Catalog Section -->
+        <section id="detailed-catalog" class="page-section">
+            <div class="glass-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2>Premium Eyewear Collection</h2>
+                    <button class="btn btn-edit btn-small" onclick="navigate('dashboard')"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
+                </div>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Select a frame design to attach to your patient record. The doctor will review your choice along with your symptoms.</p>
+                
+                <div class="product-grid">
+                    
+                    <!-- Eyeglasses 1 -->
+                    <div class="product-card">
+                        <span class="quality-badge">Premium Grade</span>
+                        <img src="https://images.unsplash.com/photo-1589785868846-95fdb404fa9d?auto=format&fit=crop&w=600&q=80" alt="Titanium Rimless" class="product-img">
+                        <div class="product-header">
+                            <div>
+                                <h3 class="product-title">Titanium Rimless Pro</h3>
+                                <p style="font-size: 0.85rem; color: var(--accent);">Optical Eyeglasses</p>
+                            </div>
+                            <span class="product-price">Rs. 4,500</span>
+                        </div>
+                        <ul class="product-details-list">
+                            <li><span>Feature</span> <span>Ultra-Light, Anti-Blue Light</span></li>
+                            <li><span>Size</span> <span>Medium (52-18-140)</span></li>
+                            <li><span>Quality Focus</span> <span>Aerospace Titanium</span></li>
+                        </ul>
+                        <button class="btn btn-edit" style="width: 100%;" onclick="selectFrame('Titanium Rimless Pro', '4,500')">Select For Prescription</button>
                     </div>
-                    <h3>Dr. Ajmal Khan</h3>
-                    <p style="font-size: 0.9rem;">Senior Optometrist</p>
+
+                    <!-- Eyeglasses 2 -->
+                    <div class="product-card">
+                        <span class="quality-badge">Durable</span>
+                        <img src="https://images.unsplash.com/photo-1577803645773-f96470509666?auto=format&fit=crop&w=600&q=80" alt="Acetate Wayfarer" class="product-img">
+                        <div class="product-header">
+                            <div>
+                                <h3 class="product-title">Classic Wayfarer</h3>
+                                <p style="font-size: 0.85rem; color: var(--accent);">Optical Eyeglasses</p>
+                            </div>
+                            <span class="product-price">Rs. 3,200</span>
+                        </div>
+                        <ul class="product-details-list">
+                            <li><span>Feature</span> <span>Thick edges (hides thick lenses)</span></li>
+                            <li><span>Size</span> <span>Large (54-18-145)</span></li>
+                            <li><span>Quality Focus</span> <span>Hand-polished Acetate</span></li>
+                        </ul>
+                        <button class="btn btn-edit" style="width: 100%;" onclick="selectFrame('Classic Wayfarer', '3,200')">Select For Prescription</button>
+                    </div>
+
+                    <!-- Sunglasses 1 -->
+                    <div class="product-card">
+                        <span class="quality-badge">UV Certified</span>
+                        <img src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=600&q=80" alt="Aviator Sunglasses" class="product-img">
+                        <div class="product-header">
+                            <div>
+                                <h3 class="product-title">Aviator Elite Sun</h3>
+                                <p style="font-size: 0.85rem; color: #f59e0b;">Prescription Sunglasses</p>
+                            </div>
+                            <span class="product-price">Rs. 5,100</span>
+                        </div>
+                        <ul class="product-details-list">
+                            <li><span>Feature</span> <span>Polarized, 100% UV400</span></li>
+                            <li><span>Size</span> <span>Large (58-14-135)</span></li>
+                            <li><span>Quality Focus</span> <span>Anti-Corrosion Alloy</span></li>
+                        </ul>
+                        <button class="btn btn-edit" style="width: 100%;" onclick="selectFrame('Aviator Elite Sun', '5,100')">Select For Prescription</button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Open Consultation Room -->
+        <section id="consultation-room" class="page-section">
+            <div class="glass-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2>Open Consultation Room</h2>
+                    <button class="btn btn-edit btn-small" onclick="navigate('dashboard')"><i class="fa-solid fa-arrow-left"></i> Dashboard</button>
+                </div>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Please describe your issues. Dr. Ajmal Khan will review this to diagnose the root cause.</p>
+                
+                <form onsubmit="event.preventDefault(); finishConsultation();">
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label>1. In your own words, what is the main problem?</label>
+                        <textarea id="qProblem" rows="3" required placeholder="E.g., Severe headaches and blurry vision..."></textarea>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label>2. Why did you decide to visit the doctor today?</label>
+                        <textarea id="qReason" rows="3" required placeholder="E.g., The pain was unbearable today..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-file-medical"></i> Generate Final Report</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Final Summary Board -->
+        <section id="final-summary" class="page-section">
+            <div class="glass-panel">
+                <h2 style="text-align: center; margin-bottom: 2rem;">Consultation Ready</h2>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem;">
+                    <!-- Doctor Info -->
+                    <div style="background: var(--glass-bg); padding: 2rem; border-radius: 20px; border-top: 4px solid var(--accent);">
+                        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Dr. Ajmal Khan</h3>
+                        <div class="data-row"><span class="data-label"><i class="fa-solid fa-phone"></i> WhatsApp</span><span class="data-value">03324894896</span></div>
+                        <div class="data-row"><span class="data-label"><i class="fa-solid fa-envelope"></i> Email</span><span class="data-value">seng0125@gmail.com</span></div>
+                    </div>
+                    <!-- Patient Summary -->
+                    <div style="background: var(--glass-bg); padding: 2rem; border-radius: 20px; border-top: 4px solid #10b981;">
+                        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Your File</h3>
+                        <div id="finalPatientData"></div>
+                    </div>
                 </div>
 
-                <p style="text-align: center; font-size: 0.9rem; margin-bottom: 1.5rem;">Your profile is ready. Please contact Dr. Ajmal to forward your digital record and start your consultation.</p>
-
-                <!-- Liquid WhatsApp Button -->
-                <a href="#" id="waLink" class="liquid-btn btn-wa" target="_blank">
-                    <i class="fa-brands fa-whatsapp fa-lg"></i> Consult via WhatsApp
-                </a>
-
-                <!-- Liquid Gmail Button -->
-                <a href="#" id="emailLink" class="liquid-btn btn-gmail" target="_blank">
-                    <i class="fa-solid fa-envelope fa-lg"></i> Send Record via Gmail
-                </a>
+                <div style="margin-top: 2.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn btn-whatsapp" onclick="sendToDoctor('whatsapp')"><i class="fa-brands fa-whatsapp"></i> Send to WhatsApp</button>
+                    <button class="btn btn-gmail" onclick="sendToDoctor('email')"><i class="fa-solid fa-envelope"></i> Send to Gmail</button>
+                </div>
             </div>
-
         </section>
-    </main>
+
+        <!-- Doctor Portal -->
+        <section id="doctor" class="page-section">
+            <div class="glass-panel">
+                <h2><i class="fa-solid fa-user-doctor"></i> Doctor's Database</h2>
+                <table id="patientTable">
+                    <thead><tr><th>Date</th><th>Patient</th><th>Frame Pick</th><th>Status</th></tr></thead>
+                    <tbody id="patientTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
 
     <script>
-        // DOM Elements
-        const regForm = document.getElementById('regForm');
-        const regView = document.getElementById('registration-view');
-        const dashView = document.getElementById('dashboard-view');
-        
-        // Data Display Elements
-        const dashName = document.getElementById('dashName');
-        const dashAge = document.getElementById('dashAge');
-        const dashPhone = document.getElementById('dashPhone');
-        const dashCondition = document.getElementById('dashCondition');
-        
-        // Contact Links
-        const waLink = document.getElementById('waLink');
-        const emailLink = document.getElementById('emailLink');
+        let currentPatient = { frame: 'Not selected yet' };
+        let consultationNotes = {};
 
-        // State Transition function
-        function switchView(showView, hideView) {
-            hideView.classList.remove('active');
-            setTimeout(() => {
-                showView.classList.add('active');
-            }, 50); // slight delay allows CSS display block to take effect before opacity animates
+        function navigate(sectionId) {
+            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(nav => nav.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            
+            if(sectionId === 'home') document.querySelectorAll('.nav-link')[0].classList.add('active');
+            if(sectionId === 'registration') document.querySelectorAll('.nav-link')[1].classList.add('active');
+            if(['dashboard', 'detailed-catalog', 'consultation-room', 'final-summary'].includes(sectionId)) {
+                document.getElementById('nav-dashboard').classList.add('active');
+                updateDashboardDisplay();
+            }
+            if(sectionId === 'doctor') loadDoctorDashboard();
         }
 
-        // Handle Registration
-        regForm.addEventListener('submit', (e) => {
-            e.preventDefault();
+        function doctorLogin() {
+            if (prompt("Enter Doctor PIN:") !== null) navigate('doctor');
+        }
 
-            // 1. Capture Data
-            const patientData = {
-                name: document.getElementById('pName').value,
-                age: document.getElementById('pAge').value,
-                phone: document.getElementById('pPhone').value,
-                condition: document.getElementById('pCondition').value
-            };
+        function preparePreview() {
+            currentPatient.name = document.getElementById('patName').value;
+            currentPatient.age = document.getElementById('patAge').value;
+            currentPatient.phone = document.getElementById('patPhone').value;
+            currentPatient.condition = document.getElementById('patCondition').value;
+            currentPatient.date = new Date().toLocaleDateString();
 
-            // 2. Populate Dashboard UI
-            dashName.textContent = patientData.name;
-            dashAge.textContent = `${patientData.age} Years`;
-            dashPhone.textContent = patientData.phone;
-            dashCondition.textContent = patientData.condition;
+            document.getElementById('previewDataArea').innerHTML = `
+                <div class="data-row"><span class="data-label">Name</span><span class="data-value">${currentPatient.name}</span></div>
+                <div class="data-row"><span class="data-label">Phone</span><span class="data-value">${currentPatient.phone}</span></div>
+            `;
+            navigate('preview');
+        }
 
-            // 3. Format dynamic contact messages
-            const doctorWhatsApp = '923324894896'; // formatted for wa.me API
-            const doctorEmail = 'seng0125@gmail.com';
+        function processPayment() {
+            alert("Registration complete!");
+            document.getElementById('nav-dashboard').style.display = 'block';
+            navigate('dashboard');
+        }
+
+        function updateDashboardDisplay() {
+            document.getElementById('dashName').innerText = currentPatient.name || 'Patient';
+            document.getElementById('dashDataArea').innerHTML = `
+                <div class="data-row"><span class="data-label">Name</span><span class="data-value">${currentPatient.name || '-'}</span></div>
+                <div class="data-row"><span class="data-label">Phone</span><span class="data-value">${currentPatient.phone || '-'}</span></div>
+                <div class="data-row"><span class="data-label">Condition</span><span class="data-value">${currentPatient.condition || '-'}</span></div>
+                <div class="data-row"><span class="data-label" style="color:var(--accent); font-weight:bold;">Selected Eyewear</span><span class="data-value" style="color:var(--accent);">${currentPatient.frame}</span></div>
+            `;
+        }
+
+        function selectFrame(frameName, price) {
+            currentPatient.frame = `${frameName} (Rs. ${price})`;
+            alert(`${frameName} has been attached to your profile.`);
+            navigate('dashboard'); // Sends them back to dash to see the update
+        }
+
+        function finishConsultation() {
+            consultationNotes.problem = document.getElementById('qProblem').value;
+            consultationNotes.reason = document.getElementById('qReason').value;
+
+            document.getElementById('finalPatientData').innerHTML = `
+                <div class="data-row"><span class="data-label">Name</span><span class="data-value">${currentPatient.name}</span></div>
+                <div class="data-row"><span class="data-label">Eyewear</span><span class="data-value">${currentPatient.frame}</span></div>
+                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+                    <p style="color:var(--accent); font-size:0.9rem; margin-bottom:5px;"><strong>Symptoms:</strong></p>
+                    <p style="font-size:0.9rem; color:var(--text-muted);">${consultationNotes.problem}</p>
+                </div>
+            `;
+            navigate('final-summary');
+        }
+
+        function sendToDoctor(method) {
+            let db = JSON.parse(localStorage.getItem('cambridge_db') || '[]');
+            db.unshift({...currentPatient, ...consultationNotes});
+            localStorage.setItem('cambridge_db', JSON.stringify(db));
+
+            const msg = `*Cambridge Opticians - Patient File*%0A%0A` +
+                        `*Patient:* ${currentPatient.name} (Age: ${currentPatient.age})%0A` +
+                        `*Phone:* ${currentPatient.phone}%0A` +
+                        `*Selected Frame:* ${currentPatient.frame}%0A%0A` +
+                        `*Symptoms:* ${consultationNotes.problem}%0A` +
+                        `*Reason for Visit:* ${consultationNotes.reason}`;
+
+            if (method === 'whatsapp') window.open(`https://wa.me/923324894896?text=${msg}`, '_blank');
+            if (method === 'email') window.open(`mailto:seng0125@gmail.com?subject=Consultation:%20${currentPatient.name}&body=${decodeURIComponent(msg).replace(/\*/g, '').replace(/%0A/g, '%0D%0A')}`, '_blank');
             
-            const messageBody = `*Cambridge Opticians - New Patient Record*%0A%0A` +
-                                `*Name:* ${patientData.name}%0A` +
-                                `*Age:* ${patientData.age}%0A` +
-                                `*Contact:* ${patientData.phone}%0A` +
-                                `*Condition:* ${patientData.condition}%0A%0A` +
-                                `Hello Dr. Ajmal, I have registered via the portal and would like to start my consultation.`;
+            navigate('dashboard');
+        }
 
-            // Clean message for Email (replace WhatsApp bold asterisks and adjust line breaks)
-            const emailSubject = `Patient Consultation Request: ${patientData.name}`;
-            const emailBodyText = decodeURIComponent(messageBody).replace(/\*/g, '').replace(/%0A/g, '%0D%0A');
-
-            // 4. Update HREFs
-            waLink.href = `https://wa.me/${doctorWhatsApp}?text=${messageBody}`;
-            emailLink.href = `mailto:${doctorEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBodyText)}`;
-
-            // 5. Transition to Dashboard
-            switchView(dashView, regView);
-        });
-
-        // Edit function to return to form
-        function editDetails() {
-            switchView(regView, dashView);
+        function loadDoctorDashboard() {
+            const tbody = document.getElementById('patientTableBody');
+            const db = JSON.parse(localStorage.getItem('cambridge_db') || '[]');
+            tbody.innerHTML = db.length === 0 ? '<tr><td colspan="4" style="text-align:center;">No records found.</td></tr>' : 
+                db.map(p => `<tr><td>${p.date}</td><td style="font-weight:bold;">${p.name}</td><td>${p.frame}</td><td><span style="color:#10b981;">Complete</span></td></tr>`).join('');
         }
     </script>
 </body>
