@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cambridge Opticians - Manager Portal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent: #38bdf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-color);
+            background-image: radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.15), transparent 25%),
+                              radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.15), transparent 25%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .nav-item {
+            padding: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-muted);
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            transform: translateX(5px);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            padding: 2rem 4rem;
+            overflow-y: auto;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        .section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Glassmorphism Cards & Forms */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            outline: none;
+        }
+
+        input:focus, select:focus { border-color: var(--accent); }
+
+        /* Prescription Grid */
+        .rx-grid {
+            display: grid;
+            grid-template-columns: 80px repeat(3, 1fr);
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .rx-header { font-weight: bold; color: var(--accent); text-align: center; }
+        .rx-label { font-weight: bold; }
+
+        /* Frame Catalog 3D Grid */
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .frame-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .frame-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--accent);
+            box-shadow: 0 15px 30px rgba(56, 189, 248, 0.2);
+        }
+
+        .frame-img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        /* Liquid Animated Button */
+        .btn-liquid {
+            background: linear-gradient(45deg, #0284c7, #38bdf8);
+            border: none;
+            padding: 15px 30px;
+            color: white;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .btn-liquid:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.6);
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="logo">
+            <i class="fa-solid fa-glasses"></i> Cambridge
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item active" onclick="switchTab('intake')">
+                <i class="fa-solid fa-clipboard-user"></i> Patient Intake
+            </li>
+            <li class="nav-item" onclick="switchTab('catalog')">
+                <i class="fa-solid fa-box-open"></i> Frame Catalog
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        
+        <!-- Patient Intake Section -->
+        <section id="intake" class="section active">
+            <h2 style="margin-top:0;">Patient Registration & Prescription</h2>
+            
+            <div class="glass-card">
+                <h3>Personal & Diagnostic Data</h3>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>Patient Name</label>
+                        <input type="text" id="pName" placeholder="e.g., Ali Khan">
+                    </div>
+                    <div class="input-group">
+                        <label>WhatsApp Number</label>
+                        <input type="tel" id="pPhone" placeholder="+92 3XX XXXXXXX">
+                    </div>
+                    <div class="input-group">
+                        <label>Age</label>
+                        <input type="number" id="pAge" placeholder="Years">
+                    </div>
+                    <div class="input-group">
+                        <label>Eye Condition / Disease</label>
+                        <select id="pCondition">
+                            <option value="Myopia (Nearsightedness)">Myopia (Nearsightedness)</option>
+                            <option value="Hyperopia (Farsightedness)">Hyperopia (Farsightedness)</option>
+                            <option value="Astigmatism">Astigmatism</option>
+                            <option value="Presbyopia">Presbyopia (Aging Eyes)</option>
+                            <option value="Cataract Early Stage">Cataract (Early Stage)</option>
+                            <option value="Computer Vision Syndrome">Computer Vision Syndrome</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>Optical Prescription Details</h3>
+                <div class="rx-grid" style="margin-bottom: 20px;">
+                    <div></div>
+                    <div class="rx-header">SPH</div>
+                    <div class="rx-header">CYL</div>
+                    <div class="rx-header">AXIS</div>
+                    
+                    <div class="rx-label">OD (Right)</div>
+                    <input type="text" id="odSph" placeholder="-1.25">
+                    <input type="text" id="odCyl" placeholder="-0.50">
+                    <input type="text" id="odAxis" placeholder="180">
+
+                    <div class="rx-label">OS (Left)</div>
+                    <input type="text" id="osSph" placeholder="-1.50">
+                    <input type="text" id="osCyl" placeholder="-0.25">
+                    <input type="text" id="osAxis" placeholder="175">
+                </div>
+                
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>Required Lens Type</label>
+                        <select id="pLens">
+                            <option value="Single Vision Anti-Reflective">Single Vision (Anti-Reflective)</option>
+                            <option value="Bifocal Lenses">Bifocal Lenses</option>
+                            <option value="Progressive Lenses">Progressive Lenses</option>
+                            <option value="Blue Cut / Computer Lenses">Blue Cut (Computer Lenses)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn-liquid" onclick="sendToWhatsApp()">
+                    <i class="fa-brands fa-whatsapp"></i> Send Record to Patient
+                </button>
+            </div>
+        </section>
+
+        <!-- Frame Catalog Section -->
+        <section id="catalog" class="section">
+            <h2 style="margin-top:0;">In-Store Frame Showcase</h2>
+            <div class="catalog-grid">
+                
+                <div class="frame-card">
+                    <img src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=400&q=80" alt="Aviator" class="frame-img">
+                    <h3>Classic Aviator</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Perfect for Astigmatism & Single Vision.</p>
+                    <button class="btn-liquid" style="font-size: 0.9rem; padding: 8px 20px;" onclick="selectFrame('Classic Aviator')">Select Frame</button>
+                </div>
+
+                <div class="frame-card">
+                    <img src="https://images.unsplash.com/photo-1577803645773-f96470509666?auto=format&fit=crop&w=400&q=80" alt="Wayfarer" class="frame-img">
+                    <h3>Modern Wayfarer</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Thick frame, hides high prescription edges.</p>
+                    <button class="btn-liquid" style="font-size: 0.9rem; padding: 8px 20px;" onclick="selectFrame('Modern Wayfarer')">Select Frame</button>
+                </div>
+
+                <div class="frame-card">
+                    <img src="https://images.unsplash.com/photo-1589785868846-95fdb404fa9d?auto=format&fit=crop&w=400&q=80" alt="Rimless" class="frame-img">
+                    <h3>Titanium Rimless</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Lightweight, ideal for progressive lenses.</p>
+                    <button class="btn-liquid" style="font-size: 0.9rem; padding: 8px 20px;" onclick="selectFrame('Titanium Rimless')">Select Frame</button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Handle Tab Switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        let selectedFrameModel = "Not Selected Yet";
+
+        function selectFrame(frameName) {
+            selectedFrameModel = frameName;
+            alert(frameName + " has been added to the patient's record.");
+            switchTab('intake'); // Send manager back to the intake form
+        }
+
+        // Generate WhatsApp Digital Prescription
+        function sendToWhatsApp() {
+            const name = document.getElementById('pName').value || 'Patient';
+            const phone = document.getElementById('pPhone').value;
+            const condition = document.getElementById('pCondition').value;
+            const lens = document.getElementById('pLens').value;
+            
+            // Prescription Data
+            const odSph = document.getElementById('odSph').value || '0.00';
+            const odCyl = document.getElementById('odCyl').value || '0.00';
+            const odAxis = document.getElementById('odAxis').value || '0';
+            
+            const osSph = document.getElementById('osSph').value || '0.00';
+            const osCyl = document.getElementById('osCyl').value || '0.00';
+            const osAxis = document.getElementById('osAxis').value || '0';
+
+            if(!phone) {
+                alert("Please enter the patient's WhatsApp number.");
+                return;
+            }
+
+            const message = `*Cambridge Opticians - Digital Record*%0A%0A` +
+                            `Hello ${name}, here are your visit details:%0A%0A` +
+                            `*Eye Condition:* ${condition}%0A` +
+                            `*Recommended Lens:* ${lens}%0A` +
+                            `*Selected Frame:* ${selectedFrameModel}%0A%0A` +
+                            `*Your Prescription:*%0A` +
+                            `OD (Right): SPH ${odSph} | CYL ${odCyl} | AXIS ${odAxis}%0A` +
+                            `OS (Left): SPH ${osSph} | CYL ${osCyl} | AXIS ${osAxis}%0A%0A` +
+                            `Thank you for visiting Cambridge Opticians!`;
+
+            // Clean the phone number and open WhatsApp API
+            const cleanPhone = phone.replace(/[^0-9]/g, '');
+            window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
+        }
+    </script>
+</body>
+</html>
